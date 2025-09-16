@@ -1,0 +1,246 @@
+@page "/bestill"
+
+@using Models;
+@using System.Text
+
+
+@inject IEmailSender _emailSender;
+@inject IDbAccess _db;
+@inject NavigationManager _navigation;
+
+
+@rendermode InteractiveServer
+
+<PageTitle>Bestill</PageTitle>
+
+
+        <div id="wrapper">
+            <div id="main">
+                <div class="inner">
+                    <h1>HVILKEN KAKE VIL DU HA?</h1>
+                </div>
+                
+                <div class="inner">
+                        <div class="box alt">
+                            
+                            <EditForm EditContext="@editContext" OnValidSubmit="HandleValidSubmit">
+                                <DataAnnotationsValidator />
+                                <div class="row gtr-uniform">
+                                    <div class="container">
+                                        @foreach(var c in GetAllCakes().GetAwaiter().GetResult()) {
+                                            <div class="row">
+                                                <div class="col-4">
+                                                <span class="image fit">
+                                                    <img src="images/@c.Image" alt="" />
+                                                </span>
+                                                </div>
+                                                <div class="col-8">
+                                                    <h3>@c.Name</h3>
+                                                    <p>@c.Description</p>
+                                                    <button type="button" data-cake-id="@c.Id" class="bestill-btn" @onclick="()=>clicked(c.Id, c.Name)">@((MarkupString)buttonTexts[c.Id])</button>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+
+                                </div>
+                                <div>
+                                    <label for="name">Navn</label>
+                                    <InputText @bind-Value="formData.Name" id="name" class="form-control" placeholder="Ditt navn" />
+                                    <ValidationMessage For="@(() => formData.Name)" />
+                                    <br />
+                                    
+                                    <label for="email">E-post</label>
+                                    <InputText @bind-Value="formData.Email" @onblur="CheckEmailUnique" id=email class="form-control" placeholder="Din e-postadresse" />
+                                    <ValidationMessage For="() => formData.Email" />
+                                    <br />
+                                    
+                                    <ValidationMessage For="() => formData.Basket" />
+
+                                    <label for="comments">Kommentarer (allergier, ønsker til leverigsdato, størrelse, pynt osv.)</label>
+                                    <InputTextArea @bind-Value="formData.Comments" id=comments class="form-control" placeholder="Dine kommentarer" />
+                                    <br>
+                                    
+                                    <button type="submit" disabled="@(!isValid)">SEND BESTILLING</button>
+
+                                    <ValidationSummary />
+                                </div>
+                            </EditForm>
+                        </div>
+                </div>
+            </div>
+        </div>
+
+
+
+<Modal IsVisible="@showModal"
+       Title="Ordrebekreftelse"
+       OnClose="CloseConfirmation">
+       <h3>TUSEN TAKK FOR BESTILLINGEN</h3>
+       <p>Jeg har mottatt bestillingen din.</p>
+       <p>Du skal ha mottatt en automatisk e-post fra meg med detaljene. </p>
+       <p>(Sjekk ev. spam-filter dersom du ikke ser den.)</p>
+</Modal>
+
+
+
+@code {
+    private ValidationMessageStore? messageStore;
+    EditContext? editContext;
+    private bool isValid = false;
+    private FormData formData = new();
+
+    private bool showModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new EditContext(formData);
+        messageStore = new ValidationMessageStore(editContext);
+        foreach (var i in await GetAllCakes()) {
+            buttonTexts.Add(i.Id, "LEGG TIL");
+        }
+        editContext.OnFieldChanged += (_, __) => ValidateForm();
+        editContext.OnValidationStateChanged += (_, __) => ValidateForm();
+    }
+
+    private void ValidateForm()
+    {
+        isValid = editContext is null ? true : !editContext.GetValidationMessages().Any();
+        StateHasChanged();
+    }
+
+    private async Task CheckEmailUnique(FocusEventArgs args)
+    {
+        // Clear previous messages
+        messageStore?.Clear(fieldIdentifier: new FieldIdentifier(formData, nameof(formData.Email)));
+
+        if (!string.IsNullOrWhiteSpace(formData.Email))
+        {
+            var customer = await _db.GetCustomerByEmail(formData.Email);
+            if (customer is not null && formData.Name != customer?.Name)
+            {
+                messageStore?.Add(
+                    new FieldIdentifier(formData, nameof(formData.Email)),
+                    $"E-postadresse er allerede i bruk med et annet navn");
+            }
+        }
+        // Force re-validation and UI update
+        editContext?.NotifyValidationStateChanged();
+    }
+
+    Dictionary<Int64, string> buttonTexts = new();
+
+    private void ChangeButtonText(Int64 id)
+    {
+        buttonTexts[id] = buttonTexts[id] == "LEGG TIL" ? "FJERN" : "LEGG TIL";
+    }
+
+    private async Task HandleValidSubmit()
+    {
+
+        messageStore?.Clear(new FieldIdentifier(formData, nameof(formData.Email)));
+
+        await Task.Run(()=>Console.WriteLine("Valid submission"));
+        Console.WriteLine("Basket: ");
+        foreach(var i in formData.Basket) {
+            Console.WriteLine(i);
+        }
+        showModal = true;
+        var customer = await _db.GetCustomerByEmail(formData.Email!);
+        if (customer is null)
+        {
+            customer = new Customer{Email = formData.Email!, Name = formData.Name!};
+            await _db.RegisterCustomer(customer);
+        }
+        var order = new Order {   
+            CustomerId = customer!.Id, 
+            CustomerName = customer.Name, 
+            CakeIdsString = String.Join(',', formData.Basket.ToList().Select(x=>x.Item1)), 
+            CakeNamesString = String.Join(", ", formData.Basket.ToList().Select(x=>x.Item2)), 
+            Comments = formData.Comments 
+        };
+        await _db.RegisterOrder(order);
+        
+        var allOrders = await _db.GetAllOrderDetails();
+
+
+        foreach (var o in allOrders)
+        {
+            Console.WriteLine($"Order ID: {o.OrderId}, Customer ID: {o.CustomerId}, Customer name: {o.CustomerName}, Date: {o.OrderDate}, Comments: {o.Comments} Cakes:");
+            foreach(var c in o.CakeNamesList)
+            {
+                Console.WriteLine($"  - {c}");
+            }
+        }
+        await SendConfirmationEmail(order);
+    }
+
+    private async Task<List<Cake>> GetAllCakes()
+    {
+        var output = await _db.GetAllCakes();
+        if (output.Count == 0)
+        output = new List<Cake>() {
+            new Cake(1, "Tiramisu",  300, "Deilig tiramisu", "Tiramisu.jpeg"),
+            new Cake(2, "Gulrot kake", 200,"Deilig gulrotkake", "GulrotKake.jpeg"),
+            new Cake(3, "Makroner", 50,"Makroner i forskjellige farger og smak. 6 stk boks.", "Makroner.jpeg"),
+            new Cake(4, "Vanlijekake", 300,"Perfekt for One Piece-fans", "OnePieceVaniljekake.jpeg")
+        };
+        return output;
+    }
+
+    private void clicked(Int64 id, string name)
+    {
+        if (buttonTexts[id] == "LEGG TIL") 
+        {
+            formData.Basket.Add((id, name));
+        }
+        else 
+        {
+            formData.Basket.Remove((id, name));
+        }
+        ChangeButtonText(id);
+        Console.WriteLine("Basket: ");
+        foreach(var (i, n) in formData.Basket) {
+            Console.WriteLine(i + ", " + n);
+        }
+        
+        editContext.Validate();
+        
+        isValid = !editContext.GetValidationMessages().Any();
+        StateHasChanged();
+    }
+
+    private void CloseConfirmation()
+    {
+        showModal = false;
+        Console.WriteLine("Closing confirmation");
+    }
+
+    private string GetConfirmationMessage(Order order)
+    {
+        StringBuilder sb = new();
+        sb.AppendLine("TUSEN TAKK FOR DIN BESTILLING!");
+        sb.AppendLine("Jeg tar kontakt med deg på e-post så snart som mulig for å avtale detaljene.");
+        sb.AppendLine($"Ordrenummer: {order.OrderId}");
+        sb.AppendLine($"Navn: {order.CustomerName}");
+        sb.AppendLine($"E-postadresse: {formData.Email!}");
+        sb.AppendLine(order.Comments is not null ? $"Kommentar: {order.Comments!}" : "");
+        sb.AppendLine("Du har bestilt følgende kaker:");
+        
+        Parallel.ForEach(order.CakeNamesList, cakeName => {
+            sb.AppendLine($"  - {cakeName}");
+        });
+        return sb.ToString();
+    }
+
+    private async Task SendConfirmationEmail(Order order)
+    {
+        var lines = GetConfirmationMessage(order)
+                            .Split('\n')
+                            .Select(l=>$"<p>{l}</p>");
+        var message = String.Join(" ", lines);
+        await Task.Run(()=>_emailSender.SendEmail(formData.Email!, $"[ZELMAS BAKERI] Bestilling (no. {order.OrderId}) mottatt", message!));
+        //await Task.Run(()=>_emailSender.SendEmail("zelmasbakeri@gmail.com", $"[ZELMAS BAKERI] Bestilling (no. {order.OrderId}) mottatt", message!));
+    }
+
+} 

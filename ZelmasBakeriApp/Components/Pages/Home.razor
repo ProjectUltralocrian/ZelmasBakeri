@@ -1,0 +1,97 @@
+﻿@page "/"
+@using ZelmasBakeriApp.Components.Layout
+
+@rendermode InteractiveServer
+
+<PageTitle>Home</PageTitle>
+
+        <div id="wrapper">
+
+			<!-- Main -->
+				<div id="main">
+					<div class="inner">
+						<p>Name: @formData.Name, Email: @formData.Email</p>
+
+						<h1>ZELMAS PETITE PÂTISSERIE</h1>
+						<h3>Bakedugnad til inntekt for treningsleir</h3>
+						<span class="image main"><img src="images/Forside.jpeg" alt="" /></span>
+						<p>Hei! Jeg heter Zelma og er 12 år. Jeg elsker å bake kaker, min drøm er å bli konditor. </p>
+						<p>Jeg driver med turning på Njård. Jeg trener masse – faktisk 15 timer i uka – og er ofte med på konkurranser.</p>
+						<p>For å samle inn penger til treningsleir, arrangerer klubben flere dugnader året rundt. Jeg har derfor begynt å selge hjemmelagde kaker. Så hvis du vil ha en skikkelig god kake til bursdag, fest eller bare til kos, og samtidig hjelpe turnlaget mitt, er det bare å bestille!</p>
+						<p>Mine spesialiteter er makroner, tiramisu, gulrotkake og jordbærkake med mørk sjokoladekrem.</p>
+						<p>Sjekk ut kakene mine i menyen – håper du finner noe du liker!</p>
+					</div>
+				</div>
+
+
+
+			<!-- Footer -->
+				<footer id="footer">
+					<div class="inner">
+						<section>
+							<h2>Har du spørsmål? Kontakt meg!</h2>
+							<EditForm Model="@formData" FormName="ContactForm" OnValidSubmit="@HandleValidSubmit">
+								<DataAnnotationsValidator />
+								<ValidationSummary />
+								<div class="fields">
+									<div class="field">
+										<InputText class="form-control" @bind-Value="formData.Name" placeholder="Ditt navn" type="text" />
+									</div>
+									<div class="field">
+										<InputText class="form-control" @bind-Value="formData.Subject" placeholder="Emne" type="text" />
+									</div>
+									<div class="field">
+										<InputText class="form-control" @bind-Value="formData.Email" placeholder="Epost" type="email" />
+									</div>
+									<div class="field">
+										<InputTextArea class="form-control" @bind-Value="formData.Message" placeholder="Melding" />
+									</div>
+								</div>
+								<button type="submit">Send</button>
+							</EditForm>
+
+
+						</section>
+						<!--<section>
+							<h2>Follow</h2>
+							<ul class="icons">
+								<li><a href="#" class="icon brands style2 fa-twitter"><span class="label">Twitter</span></a></li>
+								<li><a href="#" class="icon brands style2 fa-facebook-f"><span class="label">Facebook</span></a></li>
+								<li><a href="#" class="icon brands style2 fa-instagram"><span class="label">Instagram</span></a></li>
+								<li><a href="#" class="icon brands style2 fa-dribbble"><span class="label">Dribbble</span></a></li>
+								<li><a href="#" class="icon brands style2 fa-github"><span class="label">GitHub</span></a></li>
+								<li><a href="#" class="icon brands style2 fa-500px"><span class="label">500px</span></a></li>
+								<li><a href="#" class="icon solid style2 fa-phone"><span class="label">Phone</span></a></li>
+								<li><a href="#" class="icon solid style2 fa-envelope"><span class="label">Email</span></a></li>
+							</ul>
+						</section>-->
+						<ul class="copyright">
+							<li>&copy; Untitled. All rights reserved</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+						</ul>
+					</div>
+				</footer>
+
+		</div>
+
+
+
+
+
+@code {
+    private FormModel formData = new();
+
+    private Task HandleValidSubmit()
+    {
+        // Handle form data directly in Blazor Server
+        Console.WriteLine($"Name: {formData.Name}, Email: {formData.Email}");
+        return Task.CompletedTask;
+    }
+
+    public class FormModel
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+		public string Subject { get; set; }
+		public string Message { get; set; }
+    }
+}
