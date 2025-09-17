@@ -11,4 +11,11 @@
     <UserSecretsId>18be076d-5364-49cf-afa1-89ae589bdf49</UserSecretsId>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Include="ZelmasBakeri.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+
 </Project>
