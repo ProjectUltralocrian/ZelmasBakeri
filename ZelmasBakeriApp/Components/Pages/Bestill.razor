@@ -23,11 +23,11 @@
                 <div class="inner">
                         <div class="box alt">
                             
-                            <EditForm EditContext="@editContext" OnValidSubmit="HandleValidSubmit">
+                            <EditForm EditContext="@editContext" OnSubmit="HandleSubmit">
                                 <DataAnnotationsValidator />
                                 <div class="row gtr-uniform">
                                     <div class="container">
-                                        @foreach(var c in GetAllCakes().GetAwaiter().GetResult()) {
+                                        @foreach(var c in cakes) {
                                             <div class="row">
                                                 <div class="col-4">
                                                 <span class="image fit">
@@ -52,16 +52,29 @@
                                     
                                     <label for="email">E-post</label>
                                     <InputText @bind-Value="formData.Email" @onblur="CheckEmailUnique" id=email class="form-control" placeholder="Din e-postadresse" />
-                                    <ValidationMessage For="() => formData.Email" />
+                                    <ValidationMessage For="@(() => formData.Email)" />
+
                                     <br />
                                     
-                                    <ValidationMessage For="() => formData.Basket" />
+                                    <ValidationMessage For="@(() => formData.Basket)" />
+
 
                                     <label for="comments">Kommentarer (allergier, ønsker til leverigsdato, størrelse, pynt osv.)</label>
                                     <InputTextArea @bind-Value="formData.Comments" id=comments class="form-control" placeholder="Dine kommentarer" />
                                     <br>
                                     
-                                    <button type="submit" disabled="@(!isValid)">SEND BESTILLING</button>
+                                    <button type="submit" disabled="@(!isValid || isProcessingSubmit)">SEND BESTILLING</button>
+
+
+                                    
+                                    @if (isProcessingSubmit)
+                                    {
+                                        <div class="mt-2">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Processing...</span>
+                                            </div>
+                                        </div>
+                                    }
 
                                     <ValidationSummary />
                                 </div>
@@ -90,26 +103,44 @@
     private bool isValid = false;
     private FormData formData = new();
 
+    private List<Cake> cakes;
+
     private bool showModal = false;
+
+    private bool isProcessingSubmit = false;
 
     protected override async Task OnInitializedAsync()
     {
+        cakes = await GetAllCakes();
         editContext = new EditContext(formData);
         messageStore = new ValidationMessageStore(editContext);
-        foreach (var i in await GetAllCakes()) {
+        foreach (var i in cakes) {
             buttonTexts.Add(i.Id, "LEGG TIL");
         }
-        editContext.OnFieldChanged += (_, __) => ValidateForm();
-        editContext.OnValidationStateChanged += (_, __) => ValidateForm();
+        AttachEditContextHandlers();
     }
+
+
+
+
+    private void AttachEditContextHandlers()
+    {
+        if (editContext is not null)
+        {
+            editContext.OnFieldChanged += (_, __) => ValidateForm();
+            editContext.OnValidationStateChanged += (_, __) => ValidateForm();
+            editContext.OnValidationRequested += async (sender, eventArgs) => await CheckEmailUnique(null);
+
+        }
+    }
+
 
     private void ValidateForm()
     {
         isValid = editContext is null ? true : !editContext.GetValidationMessages().Any();
-        StateHasChanged();
     }
 
-    private async Task CheckEmailUnique(FocusEventArgs args)
+    private async Task CheckEmailUnique(FocusEventArgs? args = null)
     {
         // Clear previous messages
         messageStore?.Clear(fieldIdentifier: new FieldIdentifier(formData, nameof(formData.Email)));
@@ -126,6 +157,7 @@
         }
         // Force re-validation and UI update
         editContext?.NotifyValidationStateChanged();
+        ValidateForm();
     }
 
     Dictionary<Int64, string> buttonTexts = new();
@@ -135,10 +167,28 @@
         buttonTexts[id] = buttonTexts[id] == "LEGG TIL" ? "FJERN" : "LEGG TIL";
     }
 
-    private async Task HandleValidSubmit()
+    private async Task HandleSubmit()
     {
+        isProcessingSubmit = true;
 
-        messageStore?.Clear(new FieldIdentifier(formData, nameof(formData.Email)));
+        //Dummy logic to simulate loading data.
+        await Task.Delay(2000);
+
+        editContext!.Validate();
+
+        await CheckEmailUnique(null);
+
+        isValid = !editContext.GetValidationMessages().Any();
+
+        if (!isValid)
+        {
+            isProcessingSubmit = false;
+            StateHasChanged();
+            return; // Do not proceed
+        }
+
+
+        //messageStore?.Clear(new FieldIdentifier(formData, nameof(formData.Email)));
 
         await Task.Run(()=>Console.WriteLine("Valid submission"));
         Console.WriteLine("Basket: ");
@@ -173,6 +223,25 @@
             }
         }
         await SendConfirmationEmail(order);
+
+        formData.Basket.Clear();
+        formData.Comments = "";
+        formData.Email = "";
+        formData.Name = "";
+        
+        editContext = new EditContext(formData); 
+        messageStore = new ValidationMessageStore(editContext); 
+
+        AttachEditContextHandlers();
+
+        foreach (var (k, v) in buttonTexts)
+        {
+            buttonTexts[k] = "LEGG TIL";
+        }
+        
+        isValid = false;    
+        isProcessingSubmit = false;
+        StateHasChanged();
     }
 
     private async Task<List<Cake>> GetAllCakes()
@@ -190,7 +259,7 @@
 
     private void clicked(Int64 id, string name)
     {
-        if (buttonTexts[id] == "LEGG TIL") 
+        /*if (buttonTexts[id] == "LEGG TIL") 
         {
             formData.Basket.Add((id, name));
         }
@@ -203,9 +272,23 @@
         foreach(var (i, n) in formData.Basket) {
             Console.WriteLine(i + ", " + n);
         }
-        
+        */
+
+        if (!formData.Basket.Any(x => x.Item1 == id))
+        {
+            formData.Basket.Add((id, name));
+            buttonTexts[id] = "FJERN";
+        }
+        else
+        {
+            formData.Basket.Remove((id, name)); // Remove by id
+            buttonTexts[id] = "LEGG TIL";
+        }
+
+
         editContext.Validate();
-        
+        ValidateForm();
+
         isValid = !editContext.GetValidationMessages().Any();
         StateHasChanged();
     }
@@ -227,9 +310,10 @@
         sb.AppendLine(order.Comments is not null ? $"Kommentar: {order.Comments!}" : "");
         sb.AppendLine("Du har bestilt følgende kaker:");
         
-        Parallel.ForEach(order.CakeNamesList, cakeName => {
+        foreach (var cakeName in order.CakeNamesList) {
             sb.AppendLine($"  - {cakeName}");
-        });
+        }
+
         return sb.ToString();
     }
 
@@ -242,5 +326,4 @@
         await Task.Run(()=>_emailSender.SendEmail(formData.Email!, $"[ZELMAS BAKERI] Bestilling (no. {order.OrderId}) mottatt", message!));
         //await Task.Run(()=>_emailSender.SendEmail("zelmasbakeri@gmail.com", $"[ZELMAS BAKERI] Bestilling (no. {order.OrderId}) mottatt", message!));
     }
-
 } 
