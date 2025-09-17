@@ -11,24 +11,21 @@
                 <div class="modal-body">
                     @ChildContent
                 </div>
+                
                 <div class="modal-footer">
-                    <button type=button @onclick="Close">Tilbake</button>
-                </div>
-                <div class="modal-footer">
-                    <button type=submit @onclick="Submit">Bekreft bestilling</button>
+                    <button type=button @onclick="Close">OK</button>
                 </div>
             </div>
         </div>
     </div>
+    
 }
-
 @code {
     [Parameter] public bool IsVisible { get; set; }
     [Parameter] public string Title { get; set; }
     [Parameter] public RenderFragment ChildContent { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
-    [Parameter] public EventCallback OnSubmit { get; set; }
 
     private async Task Close() => await OnClose.InvokeAsync();
-    private async Task Submit() => await OnSubmit.InvokeAsync();
+    //private async Task 
 }

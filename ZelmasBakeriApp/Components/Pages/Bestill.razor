@@ -63,18 +63,10 @@
                                     <InputTextArea @bind-Value="formData.Comments" id=comments class="form-control" placeholder="Dine kommentarer" />
                                     <br>
                                     
-                                    <button type="submit" disabled="@(!isValid || isProcessingSubmit)">SEND BESTILLING</button>
+                                    <button type="button" disabled="@(!isValid || isProcessingSubmit)" @onclick="()=>showModal=true">SEND BESTILLING</button>
 
 
-                                    
-                                    @if (isProcessingSubmit)
-                                    {
-                                        <div class="mt-2">
-                                            <div class="spinner-border text-primary" role="status">
-                                                <span class="visually-hidden">Processing...</span>
-                                            </div>
-                                        </div>
-                                    }
+
 
                                     <ValidationSummary />
                                 </div>
@@ -87,14 +79,39 @@
 
 
 <Modal IsVisible="@showModal"
+        Title="Bekreft bestillingen"
+        OnClose=CloseConfirmation
+        OnSubmit="HandleSubmit">
+        <h3>Bekreft bestillingen din:</h3>
+        <p>Navn: @formData.Name</p>
+        <p>E-post: @formData.Email</p>
+        <p>Kommentarer: @(formData?.Comments ?? "")</p>
+        <p>Kaker:</p>
+        @foreach(var (_, cake) in formData!.Basket) {
+            <p>  - @cake</p>
+        } 
+        @if (isProcessingSubmit)
+        {
+            <div class="mt-2">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Processing...</span>
+                </div>
+            </div>
+        }
+</Modal>
+
+                                            
+
+
+
+<ModalBekreft IsVisible="@showConfirmation"
        Title="Ordrebekreftelse"
        OnClose="CloseConfirmation">
        <h3>TUSEN TAKK FOR BESTILLINGEN</h3>
        <p>Jeg har mottatt bestillingen din.</p>
        <p>Du skal ha mottatt en automatisk e-post fra meg med detaljene. </p>
        <p>(Sjekk ev. spam-filter dersom du ikke ser den.)</p>
-</Modal>
-
+</ModalBekreft>
 
 
 @code {
@@ -106,6 +123,7 @@
     private List<Cake> cakes;
 
     private bool showModal = false;
+    private bool showConfirmation = false;
 
     private bool isProcessingSubmit = false;
 
@@ -182,7 +200,9 @@
 
         if (!isValid)
         {
+            Console.WriteLine("In here");
             isProcessingSubmit = false;
+            showModal = false;
             StateHasChanged();
             return; // Do not proceed
         }
@@ -195,7 +215,7 @@
         foreach(var i in formData.Basket) {
             Console.WriteLine(i);
         }
-        showModal = true;
+        
         var customer = await _db.GetCustomerByEmail(formData.Email!);
         if (customer is null)
         {
@@ -241,6 +261,8 @@
         
         isValid = false;    
         isProcessingSubmit = false;
+        showModal = false;
+        showConfirmation = true;
         StateHasChanged();
     }
 
@@ -295,6 +317,7 @@
 
     private void CloseConfirmation()
     {
+        showConfirmation = false;
         showModal = false;
         Console.WriteLine("Closing confirmation");
     }
