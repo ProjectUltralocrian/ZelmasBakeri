@@ -34,6 +34,7 @@ public class SqliteConnector : IDbAccess
                     o.OrderId,
                     o.CustomerId,
                     c.name as CustomerName,
+                    c.email as CustomerEmail,
                     o.OrderDate,
                     GROUP_CONCAT(ol.CakeId) AS CakeIdsString,
                     GROUP_CONCAT(k.Name, ', ') AS CakeNamesString,
@@ -46,6 +47,15 @@ public class SqliteConnector : IDbAccess
                 ORDER BY o.OrderDate;";
         
         var orders = await conn.QueryAsync<Order>(sql);
+
+        foreach (var order in orders) {
+            foreach (var cakeId in order.CakeIdList) {
+                var cake = await GetCakeById(cakeId);
+                if (cake is not null) order.Cakes.Add(cake);
+            }
+        }
+
+
         return orders.ToList();
 
 

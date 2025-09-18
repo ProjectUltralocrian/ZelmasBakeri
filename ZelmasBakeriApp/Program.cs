@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using ZelmasBakeriApp.Components;
 using ZelmasBakeriBackend.DataAccess;
 using ZelmasBakeriBackend.Services;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,9 +20,11 @@ builder.Services
         {
             FromAddress = "zelmasbakeri@gmail.com",
             UserName = "zelmasbakeri@gmail.com",
-            Password = builder.Configuration["EmailSettings:Password"] ?? "", 
+            Password = builder.Configuration["EmailSettings:Password"] ?? "",
         };
-    });
+    })
+    .AddAuthentication();
+
 
 var app = builder.Build();
 

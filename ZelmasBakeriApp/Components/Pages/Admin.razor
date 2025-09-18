@@ -1,0 +1,101 @@
+﻿@page "/admin"
+@rendermode InteractiveServer
+@inject IDbAccess _db
+@inject IConfiguration _config
+
+@attribute [StreamRendering]
+
+@if (isAuthorized)
+{
+<PageTitle>Admin page</PageTitle>
+    <div id="wrapper">
+        <div id="main">
+            <!-- <div class="inner"> -->
+                            
+            <h1>Admin page</h1>
+
+            @if (orders == null)
+            {
+                <p><em>Loading...</em></p>
+            }
+            else
+            {
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Date</th>
+                                <th>Comments</th>
+                                <th>Cakes</th>
+                                <th>Total price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach(var order in orders) {
+                                <tr>
+                                    <td>@order.OrderId</td>
+                                    <td>@order.CustomerId</td>
+                                    <td>@order.CustomerName</td>
+                                    <td>@order.CustomerEmail</td>
+                                    <td>@order.OrderDate</td>
+                                    <td>@order.Comments</td>
+                                    <td>@order.CakeNamesString</td>
+                                    <td>@order.Cakes.Aggregate(0L, (total, cake)=>total+cake.Price)</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2"></td>
+                                <td>100.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            }
+            <!-- </div> -->
+        </div>
+    </div>
+} else {
+    <div id="wrapper">
+        <div id="main">
+           <p>Enter your admin password: </p>
+            <InputText placeholder="Your admin password" @bind-Value=password></InputText>
+            <button type="button" @onclick="CheckPassword">OK</button>
+            <p>@message</p>
+        </div>
+    </div>
+    
+}
+
+
+@code {
+
+    private bool isAuthorized = false;
+    private string password = "";
+    private string message = "";
+    private List<Order>? orders = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("Initializing");
+        orders = await _db.GetAllOrderDetails();
+    }
+
+    private async Task CheckPassword()
+    {
+        var correctPassword = _config.GetValue<string>("AdminPassword");
+        if (password == correctPassword)
+        {
+            isAuthorized = true;
+        }
+        else {
+            message = "Incorrect password";
+        }
+        
+    }
+}
