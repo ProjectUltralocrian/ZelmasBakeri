@@ -37,7 +37,6 @@ public class SqliteConnector : IDbAccess
                     c.email as CustomerEmail,
                     o.OrderDate,
                     GROUP_CONCAT(ol.CakeId) AS CakeIdsString,
-                    GROUP_CONCAT(k.Name, ', ') AS CakeNamesString,
                     o.Comments
                 FROM orders o
                 INNER JOIN orderlines ol ON o.OrderId = ol.OrderId
@@ -49,7 +48,7 @@ public class SqliteConnector : IDbAccess
         var orders = await conn.QueryAsync<Order>(sql);
 
         foreach (var order in orders) {
-            foreach (var cakeId in order.CakeIdList) {
+            foreach (var cakeId in order.CakeIds) {
                 var cake = await GetCakeById(cakeId);
                 if (cake is not null) order.Cakes.Add(cake);
             }
@@ -109,7 +108,7 @@ public class SqliteConnector : IDbAccess
                 SELECT last_insert_rowid();";
         long orderId = await conn.ExecuteScalarAsync<long>(sql, new {CustomerId = order.CustomerId, OrderDate=DateTime.Now, Comments=order.Comments});
         order.OrderId = orderId;
-        Parallel.ForEach(order.CakeIdList, async cakeId =>
+        Parallel.ForEach(order.CakeIds, async cakeId =>
         {
             sql = @"INSERT INTO orderlines (OrderID, CakeID, Quantity) VALUES (@OrderId, @CakeId, @Quantity);";
             await conn.ExecuteAsync(sql, new { OrderId = orderId, CakeId = cakeId, Quantity = 1});

@@ -10,7 +10,7 @@ public class NonEmptyBasketAttribute : ValidationAttribute
         if (((HashSet<(long, string)>)value).Count == 0)
             return new ValidationResult("Husk å velge minst en kake :)");
         return ValidationResult.Success;
-    }
+    } 
 }
 
 public class FormData

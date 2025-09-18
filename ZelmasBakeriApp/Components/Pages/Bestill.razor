@@ -226,7 +226,6 @@
             CustomerId = customer!.Id, 
             CustomerName = customer.Name, 
             CakeIdsString = String.Join(',', formData.Basket.ToList().Select(x=>x.Item1)), 
-            CakeNamesString = String.Join(", ", formData.Basket.ToList().Select(x=>x.Item2)), 
             Comments = formData.Comments 
         };
         await _db.RegisterOrder(order);
@@ -281,21 +280,7 @@
 
     private void clicked(Int64 id, string name)
     {
-        /*if (buttonTexts[id] == "LEGG TIL") 
-        {
-            formData.Basket.Add((id, name));
-        }
-        else 
-        {
-            formData.Basket.Remove((id, name));
-        }
-        ChangeButtonText(id);
-        Console.WriteLine("Basket: ");
-        foreach(var (i, n) in formData.Basket) {
-            Console.WriteLine(i + ", " + n);
-        }
-        */
-
+      
         if (!formData.Basket.Any(x => x.Item1 == id))
         {
             formData.Basket.Add((id, name));

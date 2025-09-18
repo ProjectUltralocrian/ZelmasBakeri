@@ -43,7 +43,7 @@
                                     <td>@order.CustomerEmail</td>
                                     <td>@order.OrderDate</td>
                                     <td>@order.Comments</td>
-                                    <td>@order.CakeNamesString</td>
+                                    <td>@String.Join(", ", order.Cakes.Select(c=>c.Name).ToList())</td>
                                     <td>@order.Cakes.Aggregate(0L, (total, cake)=>total+cake.Price)</td>
                                 </tr>
                             }
