@@ -222,11 +222,19 @@
             customer = new Customer{Email = formData.Email!, Name = formData.Name!};
             await _db.RegisterCustomer(customer);
         }
+        HashSet<Cake> cakes = new();
+        foreach (var (id, _) in formData.Basket) {
+            var cake = await _db.GetCakeById(id);
+            if (cake is not null) {
+                cakes.Add(cake);
+            }
+        }
         var order = new Order {   
             CustomerId = customer!.Id, 
             CustomerName = customer.Name, 
-            CakeIdsString = String.Join(',', formData.Basket.ToList().Select(x=>x.Item1)), 
-            Comments = formData.Comments 
+            CustomerEmail = customer.Email,
+            Comments = formData.Comments,
+            Cakes = cakes
         };
         await _db.RegisterOrder(order);
         
@@ -236,7 +244,7 @@
         foreach (var o in allOrders)
         {
             Console.WriteLine($"Order ID: {o.OrderId}, Customer ID: {o.CustomerId}, Customer name: {o.CustomerName}, Date: {o.OrderDate}, Comments: {o.Comments} Cakes:");
-            foreach(var c in o.CakeNamesList)
+            foreach(var c in o.Cakes.Select(c=>c.Name))
             {
                 Console.WriteLine($"  - {c}");
             }

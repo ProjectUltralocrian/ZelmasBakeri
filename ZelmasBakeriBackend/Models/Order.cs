@@ -9,15 +9,12 @@ public class Order
     public string CustomerName { get; set; } = "";
     public string CustomerEmail { get; set; } = "";
     public DateTime OrderDate { get; set; } = new();
-    public string CakeIdsString { get; set; } = "";
     public string? Comments { get; set; }
+    public string CakeIdsString { get; set; } = "";
 
     public HashSet<Cake> Cakes { get; set; } = [];
 
-    public List<long> CakeIds => CakeIdsString
-        .Split(',', StringSplitOptions.RemoveEmptyEntries)
-        .Select(id => Int64.Parse(id.Trim()))
-        .ToList() ?? [];
+    public List<long> CakeIds => Cakes.Select(c => c.Id).ToList();
 
     public List<string> CakeNamesList => Cakes.Select(c => c.Name).ToList();
 

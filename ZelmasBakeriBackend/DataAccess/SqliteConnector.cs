@@ -35,8 +35,8 @@ public class SqliteConnector : IDbAccess
                     o.CustomerId,
                     c.name as CustomerName,
                     c.email as CustomerEmail,
-                    o.OrderDate,
                     GROUP_CONCAT(ol.CakeId) AS CakeIdsString,
+                    o.OrderDate,
                     o.Comments
                 FROM orders o
                 INNER JOIN orderlines ol ON o.OrderId = ol.OrderId
@@ -48,16 +48,17 @@ public class SqliteConnector : IDbAccess
         var orders = await conn.QueryAsync<Order>(sql);
 
         foreach (var order in orders) {
-            foreach (var cakeId in order.CakeIds) {
+            List<long> ids = new();
+            foreach (var i in order.CakeIdsString.Split(','))
+            {
+                ids.Add(Int64.Parse(i));
+            }
+            foreach (var cakeId in ids) {
                 var cake = await GetCakeById(cakeId);
                 if (cake is not null) order.Cakes.Add(cake);
             }
         }
-
-
         return orders.ToList();
-
-
     }
 
     public async Task<Cake?> GetCakeById(long id)
@@ -73,7 +74,6 @@ public class SqliteConnector : IDbAccess
         {
             return null;
         }
-    
     }
 
     public async Task<Customer?> GetCustomerByEmail(string email)
