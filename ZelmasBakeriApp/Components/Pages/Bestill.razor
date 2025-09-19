@@ -22,55 +22,54 @@
                 
                 <div class="inner">
                         <div class="box alt">
-                            
-                            <EditForm EditContext="@editContext" OnSubmit="HandleSubmit">
-                                <DataAnnotationsValidator />
-                                <div class="row gtr-uniform">
-                                    <div class="container">
-                                        @foreach(var c in cakes) {
-                                            <div class="row">
-                                                <div class="col-4">
-                                                <span class="image fit">
-                                                    <img src="images/@c.Image" alt="" />
-                                                </span>
+                            @if(editContext is not null)
+                            {
+                                <EditForm EditContext="@editContext" OnSubmit="HandleSubmit">
+                                    <DataAnnotationsValidator />
+                                    <div class="row gtr-uniform">
+                                        <div class="container">
+                                            @foreach(var c in cakes!) {
+                                                <div class="row">
+                                                    <div class="col-4">
+                                                    <span class="image fit">
+                                                        <img src="images/@c.Image" alt="" />
+                                                    </span>
+                                                    </div>
+                                                    <div class="col-8">
+                                                        <h3>@c.Name</h3>
+                                                        <p>@c.Description</p>
+                                                        <button type="button" data-cake-id="@c.Id" class="bestill-btn" @onclick="()=>clicked(c.Id, c.Name)">@((MarkupString)buttonTexts[c.Id])</button>
+                                                    </div>
                                                 </div>
-                                                <div class="col-8">
-                                                    <h3>@c.Name</h3>
-                                                    <p>@c.Description</p>
-                                                    <button type="button" data-cake-id="@c.Id" class="bestill-btn" @onclick="()=>clicked(c.Id, c.Name)">@((MarkupString)buttonTexts[c.Id])</button>
-                                                </div>
-                                            </div>
-                                        }
+                                            }
+                                        </div>
+
                                     </div>
+                                    <div>
+                                        <label for="name">Navn</label>
+                                        <InputText @bind-Value="formData.Name" id="name" class="form-control" placeholder="Ditt navn" />
+                                        <ValidationMessage For="@(() => formData.Name)" />
+                                        <br />
+                                        
+                                        <label for="email">E-post</label>
+                                        <InputText @bind-Value="formData.Email" @onblur="CheckEmailUnique" id=email class="form-control" placeholder="Din e-postadresse" />
+                                        <ValidationMessage For="@(() => formData.Email)" />
 
-                                </div>
-                                <div>
-                                    <label for="name">Navn</label>
-                                    <InputText @bind-Value="formData.Name" id="name" class="form-control" placeholder="Ditt navn" />
-                                    <ValidationMessage For="@(() => formData.Name)" />
-                                    <br />
-                                    
-                                    <label for="email">E-post</label>
-                                    <InputText @bind-Value="formData.Email" @onblur="CheckEmailUnique" id=email class="form-control" placeholder="Din e-postadresse" />
-                                    <ValidationMessage For="@(() => formData.Email)" />
-
-                                    <br />
-                                    
-                                    <ValidationMessage For="@(() => formData.Basket)" />
+                                        <br />
+                                        
+                                        <ValidationMessage For="@(() => formData.Basket)" />
 
 
-                                    <label for="comments">Kommentarer (allergier, ønsker til leverigsdato, størrelse, pynt osv.)</label>
-                                    <InputTextArea @bind-Value="formData.Comments" id=comments class="form-control" placeholder="Dine kommentarer" />
-                                    <br>
-                                    
-                                    <button type="button" disabled="@(!isValid || isProcessingSubmit)" @onclick="()=>showModal=true">SEND BESTILLING</button>
+                                        <label for="comments">Kommentarer (allergier, ønsker til leverigsdato, størrelse, pynt osv.)</label>
+                                        <InputTextArea @bind-Value="formData.Comments" id=comments class="form-control" placeholder="Dine kommentarer" />
+                                        <br>
+                                        
+                                        <button type="button" disabled="@(!isValid || isProcessingSubmit)" @onclick="()=>showModal=true">SEND BESTILLING</button>
 
-
-
-
-                                    <ValidationSummary />
-                                </div>
-                            </EditForm>
+                                        <ValidationSummary />
+                                    </div>
+                                </EditForm>
+                            }
                         </div>
                 </div>
             </div>
@@ -120,7 +119,7 @@
     private bool isValid = false;
     private FormData formData = new();
 
-    private List<Cake> cakes;
+    private List<Cake>? cakes;
 
     private bool showModal = false;
     private bool showConfirmation = false;
@@ -243,7 +242,7 @@
 
         foreach (var o in allOrders)
         {
-            Console.WriteLine($"Order ID: {o.OrderId}, Customer ID: {o.CustomerId}, Customer name: {o.CustomerName}, Date: {o.OrderDate}, Comments: {o.Comments} Cakes:");
+            Console.WriteLine($"Order ID: {o.Id}, Customer ID: {o.CustomerId}, Customer name: {o.CustomerName}, Date: {o.Date}, Comments: {o.Comments} Cakes:");
             foreach(var c in o.Cakes.Select(c=>c.Name))
             {
                 Console.WriteLine($"  - {c}");
@@ -320,7 +319,7 @@
         StringBuilder sb = new();
         sb.AppendLine("TUSEN TAKK FOR DIN BESTILLING!");
         sb.AppendLine("Jeg tar kontakt med deg på e-post så snart som mulig for å avtale detaljene.");
-        sb.AppendLine($"Ordrenummer: {order.OrderId}");
+        sb.AppendLine($"Ordrenummer: {order.Id}");
         sb.AppendLine($"Navn: {order.CustomerName}");
         sb.AppendLine($"E-postadresse: {formData.Email!}");
         sb.AppendLine(order.Comments is not null ? $"Kommentar: {order.Comments!}" : "");
@@ -339,7 +338,7 @@
                             .Split('\n')
                             .Select(l=>$"<p>{l}</p>");
         var message = String.Join(" ", lines);
-        await Task.Run(()=>_emailSender.SendEmail(formData.Email!, $"[ZELMAS BAKERI] Bestilling (no. {order.OrderId}) mottatt", message!));
-        //await Task.Run(()=>_emailSender.SendEmail("zelmasbakeri@gmail.com", $"[ZELMAS BAKERI] Bestilling (no. {order.OrderId}) mottatt", message!));
+        await Task.Run(()=>_emailSender.SendEmail(formData.Email!, $"[ZELMAS BAKERI] Bestilling (no. {order.Id}) mottatt", message!));
+        //await Task.Run(()=>_emailSender.SendEmail("zelmasbakeri@gmail.com", $"[ZELMAS BAKERI] Bestilling (no. {order.Id}) mottatt", message!));
     }
 } 

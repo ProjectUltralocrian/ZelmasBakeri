@@ -37,11 +37,11 @@
                         <tbody>
                             @foreach(var order in orders) {
                                 <tr>
-                                    <td>@order.OrderId</td>
+                                    <td>@order.Id</td>
                                     <td>@order.CustomerId</td>
                                     <td>@order.CustomerName</td>
                                     <td>@order.CustomerEmail</td>
-                                    <td>@order.OrderDate</td>
+                                    <td>@order.Date</td>
                                     <td>@order.Comments</td>
                                     <td>@String.Join(", ", order.Cakes.Select(c=>c.Name).ToList())</td>
                                     <td>@order.Cakes.Aggregate(0L, (total, cake)=>total+cake.Price)</td>
@@ -86,7 +86,7 @@
         orders = await _db.GetAllOrderDetails();
     }
 
-    private async Task CheckPassword()
+    private void CheckPassword()
     {
         var correctPassword = _config.GetValue<string>("AdminPassword");
         if (password == correctPassword)

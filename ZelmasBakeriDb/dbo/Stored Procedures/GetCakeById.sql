@@ -1,0 +1,6 @@
+﻿CREATE PROCEDURE GetCakeById
+    @Id INT
+AS
+BEGIN
+    SELECT * FROM Cakes WHERE Id = @Id;
+END

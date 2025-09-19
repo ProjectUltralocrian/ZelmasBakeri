@@ -13,7 +13,7 @@ builder.Services.AddRazorComponents()
 
 
 builder.Services
-    .AddSingleton<IDbAccess, SqliteConnector>()
+    .AddSingleton<IDbAccess, SqlServerConnector>()
     .AddSingleton<IEmailSender>(_ =>
     {
         return new GmailSender
