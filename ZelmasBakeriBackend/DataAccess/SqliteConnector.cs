@@ -31,19 +31,19 @@ public class SqliteConnector : IDbAccess
         using IDbConnection conn = new SqliteConnection(_connectionString);
         conn.Open();
         var sql = @"SELECT
-                    o.OrderId,
+                    o.Id,
                     o.CustomerId,
                     c.name as CustomerName,
                     c.email as CustomerEmail,
                     GROUP_CONCAT(ol.CakeId) AS CakeIdsString,
-                    o.OrderDate,
+                    o.Date,
                     o.Comments
                 FROM orders o
-                INNER JOIN orderlines ol ON o.OrderId = ol.OrderId
+                INNER JOIN orderlines ol ON o.Id = ol.Id
                 INNER JOIN customers c ON c.Id = o.CustomerId
                 INNER JOIN kaker k ON k.id = ol.CakeId
-                GROUP BY o.OrderId, o.CustomerId, o.OrderDate, o.Comments
-                ORDER BY o.OrderDate;";
+                GROUP BY o.Id, o.CustomerId, o.Date, o.Comments
+                ORDER BY o.Date;";
         
         var orders = await conn.QueryAsync<Order>(sql);
 
@@ -104,13 +104,13 @@ public class SqliteConnector : IDbAccess
     {
         using IDbConnection conn = new SqliteConnection(_connectionString);
         conn.Open();
-        var sql = @"INSERT INTO orders (CustomerId, OrderDate, Comments) VALUES (@CustomerId, @OrderDate, @Comments);
+        var sql = @"INSERT INTO orders (CustomerId, Date, Comments) VALUES (@CustomerId, @Date, @Comments);
                 SELECT last_insert_rowid();";
         long orderId = await conn.ExecuteScalarAsync<long>(sql, new {CustomerId = order.CustomerId, OrderDate=DateTime.Now, Comments=order.Comments});
-        order.OrderId = orderId;
+        order.Id = orderId;
         Parallel.ForEach(order.CakeIds, async cakeId =>
         {
-            sql = @"INSERT INTO orderlines (OrderID, CakeID, Quantity) VALUES (@OrderId, @CakeId, @Quantity);";
+            sql = @"INSERT INTO orderlines (OrderID, CakeID, Quantity) VALUES (@Id, @CakeId, @Quantity);";
             await conn.ExecuteAsync(sql, new { OrderId = orderId, CakeId = cakeId, Quantity = 1});
         });
     }

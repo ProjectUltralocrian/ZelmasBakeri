@@ -4,11 +4,11 @@ using System.Linq;
 
 public class Order
 {
-    public long OrderId { get; set; }
+    public long Id { get; set; }
     public long CustomerId { get; set; }
     public string CustomerName { get; set; } = "";
     public string CustomerEmail { get; set; } = "";
-    public DateTime OrderDate { get; set; } = new();
+    public DateTime Date { get; set; } = new();
     public string? Comments { get; set; }
     public string CakeIdsString { get; set; } = "";
 
