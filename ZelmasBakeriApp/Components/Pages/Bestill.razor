@@ -233,6 +233,7 @@
             CustomerName = customer.Name, 
             CustomerEmail = customer.Email,
             Comments = formData.Comments,
+            Date = DateTime.Now,
             Cakes = cakes
         };
         await _db.RegisterOrder(order);

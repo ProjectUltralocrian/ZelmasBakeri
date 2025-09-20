@@ -2,5 +2,6 @@
     @Id INT
 AS
 BEGIN
+    SET NOCOUNT ON;
     SELECT * FROM Cakes WHERE Id = @Id;
 END

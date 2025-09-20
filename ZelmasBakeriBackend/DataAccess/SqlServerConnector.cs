@@ -67,21 +67,34 @@ public class SqlServerConnector : IDbAccess
             new { Id = id },
             commandType: CommandType.StoredProcedure);
         
-        return cake.First();
+        return cake.FirstOrDefault();
     }
 
-    public Task<Customer?> GetCustomerByEmail(string email)
+    public async Task<Customer?> GetCustomerByEmail(string email)
     {
-        throw new NotImplementedException();
+        using IDbConnection conn = new SqlConnection(_connectionString);
+        var customer = await conn.QueryAsync<Customer>(
+            "GetCustomerByEmail", new { @Email = email }, commandType: CommandType.StoredProcedure);
+        return customer.FirstOrDefault();
     }
 
-    public Task RegisterCustomer(Customer customer)
+    public async Task RegisterCustomer(Customer customer)
     {
-        throw new NotImplementedException();
+        using IDbConnection conn = new SqlConnection(_connectionString);
+        var id = await conn.ExecuteScalarAsync<long>("RegisterCustomer", new {@Name=customer.Name, @Email=customer.Email}, commandType: CommandType.StoredProcedure);
+        customer.Id = id;
     }
 
-    public Task RegisterOrder(Order order)
+    public async Task RegisterOrder(Order order)
     {
-        throw new NotImplementedException();
+        using IDbConnection conn = new SqlConnection(_connectionString);
+        var id = await conn.ExecuteScalarAsync<long>("RegisterOrder", new {@CustomerId=order.CustomerId, @Date=order.Date, @Comments=order.Comments}, commandType: CommandType.StoredProcedure);
+        order.Id = id;
+
+        foreach (var cakeId in order.CakeIds)
+        {
+            var sql = @"INSERT INTO Orderlines (OrderID, CakeID, Quantity) VALUES (@OrderId, @CakeId, @Quantity);";
+            conn.Execute(sql, new { OrderId = order.Id, CakeId = cakeId, Quantity = 1 });
+        }
     }
 }

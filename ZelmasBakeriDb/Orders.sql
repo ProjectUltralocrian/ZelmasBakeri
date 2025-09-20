@@ -3,6 +3,6 @@
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY(1, 1), 
     [CustomerId] INT NOT NULL, 
     [Date] DATETIME2 NOT NULL, 
-    [Comments] NVArchar(500), 
+    [Comments] NVArchar(1000), 
     CONSTRAINT [FK_Orders_Customer] FOREIGN KEY ([CustomerId]) REFERENCES [Customers]([Id])
 )
