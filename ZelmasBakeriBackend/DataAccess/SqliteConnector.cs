@@ -106,12 +106,12 @@ public class SqliteConnector : IDbAccess
         conn.Open();
         var sql = @"INSERT INTO orders (CustomerId, Date, Comments) VALUES (@CustomerId, @Date, @Comments);
                 SELECT last_insert_rowid();";
-        long orderId = await conn.ExecuteScalarAsync<long>(sql, new {CustomerId = order.CustomerId, OrderDate=DateTime.Now, Comments=order.Comments});
+        long orderId = await conn.ExecuteScalarAsync<long>(sql, new { CustomerId = order.CustomerId, OrderDate = order.Date, Comments = order.Comments });
         order.Id = orderId;
-        Parallel.ForEach(order.CakeIds, async cakeId =>
+        foreach (var cakeId in order.CakeIds)
         {
             sql = @"INSERT INTO orderlines (OrderID, CakeID, Quantity) VALUES (@Id, @CakeId, @Quantity);";
-            await conn.ExecuteAsync(sql, new { OrderId = orderId, CakeId = cakeId, Quantity = 1});
-        });
-    }
+            conn.Execute(sql, new { OrderId = orderId, CakeId = cakeId, Quantity = 1 });
+        }
+    }    
 }
