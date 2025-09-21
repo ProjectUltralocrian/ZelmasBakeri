@@ -12,21 +12,19 @@
         <div class="inner">
             <section>
                 <h1>Hva syntes du om kaken?</h1> 
-                <h2>Skriv gjerne en tilbakemelding!</h2>
+                <h2>Skriv gjerne en tilbakemelding eller vurdering!</h2>
                 @if (editContext is not null)
                 {
                     <EditForm Model="@formData" FormName="ReviewForm" OnValidSubmit="@HandleValidSubmit">
                         <DataAnnotationsValidator/>
                         <div class="fields">
                             <div class="field">
-                                <InputText class="form-control" @bind-Value="formData.Name" placeholder="Ditt navn" type="text" disabled="@formData.AnonymousMessage" />
+                                <InputText class="form-control" @bind-Value="formData.Name" placeholder="Ditt navn" type="text" id="username"/>
+                                <label for = "username">Navn (valgfritt)</label>
                             </div>
                             <div class="field">
-                                <input type="checkbox" />
-                                <label>Anonym melding</label>
-                            </div>
-                            <div class="field">
-                                <InputTextArea class="form-control" @bind-Value="formData.Message" placeholder="Melding" rows="5"/>
+                                <InputTextArea class="form-control" id="message" @bind-Value="formData.Message" placeholder="Din melding" rows="5"/>
+                                <label for="message">Tilbakemelding</label>
 
                                 <ValidationMessage For = "@(()=>formData.Message)"/>
                             </div>
@@ -50,7 +48,7 @@
                 }
                 else
                 {
-                <h3>Tilbakemeldinger fra kunder</h3>
+                <h3>Tidligere tilbakemeldinger og vurderinger</h3>
                     <div class="table-wrapper">
                         <table>
                             <thead>
@@ -92,7 +90,11 @@
 
     private async Task HandleValidSubmit()
     {
-        var review = new Review(0, formData.Name, formData.Message ?? "Ingen tilbakemelding", DateTime.Now);
+        var review = new Review(
+            0, 
+            (formData.Name is null || formData.Name.Length == 0) ? "Anonym tilbakemelding" : formData.Name, 
+            formData.Message ?? "Ingen tilbakemelding", 
+            DateTime.Now);
         await _db.RegisterReview(review);
         await Reset();
     }
