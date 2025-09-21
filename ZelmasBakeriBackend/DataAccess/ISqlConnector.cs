@@ -13,4 +13,7 @@ public interface IDbAccess
     Task RegisterOrder(Order order);
     Task RegisterCustomer(Customer customer);
     Task<List<Order>> GetAllOrderDetails();
+
+    Task<List<Review>> GetAllReviews();
+    Task RegisterReview(Review review);
 }

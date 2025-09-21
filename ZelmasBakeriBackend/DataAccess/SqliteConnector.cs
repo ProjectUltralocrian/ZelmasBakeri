@@ -61,6 +61,11 @@ public class SqliteConnector : IDbAccess
         return orders.ToList();
     }
 
+    public async Task<List<Review>> GetAllReviews()
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<Cake?> GetCakeById(long id)
     {
         using IDbConnection conn = new SqliteConnection(_connectionString);
@@ -113,5 +118,10 @@ public class SqliteConnector : IDbAccess
             sql = @"INSERT INTO orderlines (OrderID, CakeID, Quantity) VALUES (@Id, @CakeId, @Quantity);";
             conn.Execute(sql, new { OrderId = orderId, CakeId = cakeId, Quantity = 1 });
         }
-    }    
+    }
+
+    public Task RegisterReview(Review review)
+    {
+        throw new NotImplementedException();
+    }
 }

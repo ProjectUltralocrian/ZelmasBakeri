@@ -1,0 +1,135 @@
+﻿@page "/tilbakemeldinger"
+@using System.ComponentModel.DataAnnotations
+
+@rendermode InteractiveServer
+
+@inject IDbAccess _db;
+
+<PageTitle>Tilbakemeldinger</PageTitle>
+
+<div id="wrapper">
+    <div id="main">
+        <div class="inner">
+            <section>
+                <h1>Hva syntes du om kaken?</h1> 
+                <h2>Skriv gjerne en tilbakemelding!</h2>
+                @if (editContext is not null)
+                {
+                    <EditForm Model="@formData" FormName="ReviewForm" OnValidSubmit="@HandleValidSubmit">
+                        <DataAnnotationsValidator/>
+                        <div class="fields">
+                            <div class="field">
+                                <InputText class="form-control" @bind-Value="formData.Name" placeholder="Ditt navn" type="text" disabled="@formData.AnonymousMessage" />
+                            </div>
+                            <div class="field">
+                                <input type="checkbox" />
+                                <label>Anonym melding</label>
+                            </div>
+                            <div class="field">
+                                <InputTextArea class="form-control" @bind-Value="formData.Message" placeholder="Melding" rows="5"/>
+
+                                <ValidationMessage For = "@(()=>formData.Message)"/>
+                            </div>
+                        </div>
+                        <button type="submit">Send</button>
+                    </EditForm>
+                }
+
+            </section>
+            <div>
+                
+                                    
+
+                @if (reviews is null)
+                {
+                    <p><em>Laster inn tilbakemeldinger...</em></p>
+                }
+                else if (reviews.Count == 0)
+                {
+                    <p><em>Ingen tilbakemeldinger tilgjengelig.</em></p>
+                }
+                else
+                {
+                <h3>Tilbakemeldinger fra kunder</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Navn</th>
+                                    <th>Dato</th>
+                                    <th>Tilbakemelding</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach(var review in reviews.Where(r=>r.Visible)) {
+                                    <tr>
+                                        <td>@review.Name</td>
+                                        <td>@review.CreatedAt.ToLongDateString()</td>
+                                        <td>@review.Message</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                            </tfoot>
+                        </table>
+                    </div>
+                }
+                </div>
+                <!-- </div> -->
+</div>
+</div>
+</div>
+
+
+@code {
+    private List<Review>? reviews;
+
+    private FormModel formData = new();
+
+    private EditContext? editContext;
+
+    private ValidationMessageStore? messageStore;
+
+    private async Task HandleValidSubmit()
+    {
+        var review = new Review(0, formData.Name, formData.Message ?? "Ingen tilbakemelding", DateTime.Now);
+        await _db.RegisterReview(review);
+        await Reset();
+    }
+
+    public async Task Reset()
+    {
+        formData.Name = null;
+        formData.Message = null;
+        reviews = await _db.GetAllReviews();
+        StateHasChanged();
+
+    }
+
+    public class FormModel
+    {
+        public string? Name { get; set; }
+
+        [Required(ErrorMessage = "Husk å legge inn en melding")]
+        public string? Message { get; set; }
+
+        public bool AnonymousMessage { get; set; } = false;
+    }
+
+    private void HandleValidationRequested(object? sender,
+        ValidationRequestedEventArgs args)
+    {
+        messageStore?.Clear();
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new EditContext(formData);
+        editContext.OnValidationRequested += HandleValidationRequested;
+        messageStore = new(editContext);
+        reviews = await _db.GetAllReviews();
+    }
+
+
+}

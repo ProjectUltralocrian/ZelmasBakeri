@@ -58,6 +58,15 @@ public class SqlServerConnector : IDbAccess
         return orders;
     }
 
+    public async Task<List<Review>> GetAllReviews()
+    {
+        using IDbConnection conn = new SqlConnection(_connectionString);
+        var reviews = await conn.QueryAsync<Review>(
+            "GetAllReviews",
+            commandType: CommandType.StoredProcedure);
+        return reviews.ToList();
+    }
+
     public async Task<Cake?> GetCakeById(long id)
     {
         using IDbConnection conn = new SqlConnection(_connectionString);
@@ -96,5 +105,12 @@ public class SqlServerConnector : IDbAccess
             var sql = @"INSERT INTO Orderlines (OrderID, CakeID, Quantity) VALUES (@OrderId, @CakeId, @Quantity);";
             conn.Execute(sql, new { OrderId = order.Id, CakeId = cakeId, Quantity = 1 });
         }
+    }
+
+    public async Task RegisterReview(Review review)
+    {
+        using IDbConnection conn = new SqlConnection(_connectionString);
+        var id = await conn.ExecuteScalarAsync<long>("RegisterReview", new { Name = review.Name, Message = review.Message, CreatedAt = review.CreatedAt }, commandType: CommandType.StoredProcedure);
+        review.Id = id;
     }
 }
