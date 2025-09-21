@@ -12,7 +12,10 @@
 @rendermode InteractiveServer
 
 <PageTitle>Bestill</PageTitle>
-
+@if (cakes is null)
+{
+    <p>Laster inn kakene...</p>
+} else { 
 
         <div id="wrapper">
             <div id="main">
@@ -22,30 +25,37 @@
                 
                 <div class="inner">
                         <div class="box alt">
+                            <div class="row gtr-uniform">
+                                <div class="container">
+                                    @foreach (var c in cakes!)
+                                    {
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <span class="image fit">
+                                                    <img src="images/@c.Image" alt="" />
+                                                </span>
+                                            </div>
+                                            <div class="col-8">
+                                                <h3>@c.Name</h3>
+                                                <p>@c.Description</p>
+                                                <button type="button" data-cake-id="@c.Id" class="bestill-btn" @onclick="() => clicked(c.Id, c.Name)">@((MarkupString)buttonTexts[c.Id])</button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                            </div>
+                        </div>
+                </div>
+            </div>
+                <footer id="footer">
+					<div class="inner">
+						<section>
                             @if(editContext is not null)
                             {
                                 <EditForm EditContext="@editContext" OnSubmit="HandleSubmit">
                                     <DataAnnotationsValidator />
-                                    <div class="row gtr-uniform">
-                                        <div class="container">
-                                            @foreach(var c in cakes!) {
-                                                <div class="row">
-                                                    <div class="col-4">
-                                                    <span class="image fit">
-                                                        <img src="images/@c.Image" alt="" />
-                                                    </span>
-                                                    </div>
-                                                    <div class="col-8">
-                                                        <h3>@c.Name</h3>
-                                                        <p>@c.Description</p>
-                                                        <button type="button" data-cake-id="@c.Id" class="bestill-btn" @onclick="()=>clicked(c.Id, c.Name)">@((MarkupString)buttonTexts[c.Id])</button>
-                                                    </div>
-                                                </div>
-                                            }
-                                        </div>
-
-                                    </div>
-                                    <div>
+   
                                         <label for="name">Navn</label>
                                         <InputText @bind-Value="formData.Name" id="name" class="form-control" placeholder="Ditt navn" />
                                         <ValidationMessage For="@(() => formData.Name)" />
@@ -67,14 +77,14 @@
                                         <button type="button" disabled="@(!isValid || isProcessingSubmit)" @onclick="()=>showModal=true">SEND BESTILLING</button>
 
                                         <ValidationSummary />
-                                    </div>
                                 </EditForm>
                             }
+                        </section>
                         </div>
+                    </footer>
                 </div>
-            </div>
-        </div>
-
+         
+}
 
 
 <Modal IsVisible="@showModal"
@@ -339,7 +349,7 @@
                             .Split('\n')
                             .Select(l=>$"<p>{l}</p>");
         var message = String.Join(" ", lines);
-        await Task.Run(()=>_emailSender.SendEmail(formData.Email!, $"[ZELMAS BAKERI] Bestilling (no. {order.Id}) mottatt", message!));
+        await _emailSender.SendEmailAsync(formData.Email!, $"[ZELMAS BAKERI] Bestilling (no. {order.Id}) mottatt", message!);
         //await Task.Run(()=>_emailSender.SendEmail("zelmasbakeri@gmail.com", $"[ZELMAS BAKERI] Bestilling (no. {order.Id}) mottatt", message!));
     }
 } 
