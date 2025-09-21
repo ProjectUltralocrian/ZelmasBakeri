@@ -11,7 +11,7 @@ public class GmailSender : IEmailSender
     public int SmtpPort { get; init; } = 587;
     public string UserName { get; init; } = "";
     public string Password { get; init; } = "";
-    public void SendEmail(string toAddress, string subject, string body)
+    public async Task SendEmailAsync(string toAddress, string subject, string body)
     {
         try
         {
@@ -32,7 +32,7 @@ public class GmailSender : IEmailSender
             smtpClient.Credentials = new NetworkCredential(UserName, Password);
 
             // Send the email
-            smtpClient.Send(mail);
+            await Task.Run(()=>smtpClient.Send(mail));
             Console.WriteLine("Email sent successfully!");
         }
         catch (Exception ex)
