@@ -31,19 +31,19 @@ public class SqliteConnector : IDbAccess
         using IDbConnection conn = new SqliteConnection(_connectionString);
         conn.Open();
         var sql = @"SELECT
-                    o.Id,
+                    o.OrderId,
                     o.CustomerId,
                     c.name as CustomerName,
                     c.email as CustomerEmail,
                     GROUP_CONCAT(ol.CakeId) AS CakeIdsString,
-                    o.Date,
+                    o.OrderDate,
                     o.Comments
                 FROM orders o
-                INNER JOIN orderlines ol ON o.Id = ol.Id
+                INNER JOIN orderlines ol ON o.OrderId = ol.OrderLineId
                 INNER JOIN customers c ON c.Id = o.CustomerId
-                INNER JOIN kaker k ON k.id = ol.CakeId
-                GROUP BY o.Id, o.CustomerId, o.Date, o.Comments
-                ORDER BY o.Date;";
+                INNER JOIN kaker k ON k.id = ol.CakeID
+                GROUP BY o.OrderId, o.CustomerId, o.OrderDate, o.Comments
+                ORDER BY o.OrderDate;";
         
         var orders = await conn.QueryAsync<Order>(sql);
 
@@ -109,14 +109,14 @@ public class SqliteConnector : IDbAccess
     {
         using IDbConnection conn = new SqliteConnection(_connectionString);
         conn.Open();
-        var sql = @"INSERT INTO orders (CustomerId, Date, Comments) VALUES (@CustomerId, @Date, @Comments);
+        var sql = @"INSERT INTO orders (CustomerID, OrderDate, Comments) VALUES (@CustomerID, @OrderDate, @Comments);
                 SELECT last_insert_rowid();";
-        long orderId = await conn.ExecuteScalarAsync<long>(sql, new { CustomerId = order.CustomerId, OrderDate = order.Date, Comments = order.Comments });
+        long orderId = await conn.ExecuteScalarAsync<long>(sql, new { CustomerID = order.CustomerId, OrderDate = order.Date, Comments = order.Comments });
         order.Id = orderId;
         foreach (var cakeId in order.CakeIds)
         {
             sql = @"INSERT INTO orderlines (OrderID, CakeID, Quantity) VALUES (@Id, @CakeId, @Quantity);";
-            conn.Execute(sql, new { OrderId = orderId, CakeId = cakeId, Quantity = 1 });
+            conn.Execute(sql, new { Id = orderId, CakeId = cakeId, Quantity = 1 });
         }
     }
 
