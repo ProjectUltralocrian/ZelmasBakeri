@@ -58,22 +58,26 @@
     <Folder Include="Properties" />
     <Folder Include="dbo\" />
     <Folder Include="dbo\Stored Procedures\" />
+    <Folder Include="dbo\Tables" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="Orders.sql" />
-    <Build Include="Customers.sql" />
-    <Build Include="OrderLines.sql" />
-    <Build Include="Cakes.sql" />
     <Build Include="dbo\Stored Procedures\GetCakeById.sql" />
     <Build Include="dbo\Stored Procedures\GetAllOrderDetails.sql" />
     <Build Include="dbo\Stored Procedures\GetCustomerByEmail.sql" />
     <Build Include="dbo\Stored Procedures\RegisterCustomer.sql" />
-    <Build Include="dbo\Stored Procedures\RegisterCustomer_1.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ZelmasBakeriDb.publish.xml" />
+    <Build Include="dbo\Stored Procedures\RegisterOrder.sql" />
+    <Build Include="dbo\Stored Procedures\GetAllReviews.sql" />
+    <Build Include="dbo\Tables\Cakes.sql" />
+    <Build Include="dbo\Tables\Customers.sql" />
+    <Build Include="dbo\Tables\OrderLines.sql" />
+    <Build Include="dbo\Tables\Orders.sql" />
+    <Build Include="dbo\Tables\Tilbakemeldinger.sql" />
+    <Build Include="dbo\Stored Procedures\RegisterReview.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment1.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LocalDevZelmasBakeriDb.publish.publish.xml" />
   </ItemGroup>
 </Project>
