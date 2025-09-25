@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using ZelmasBakeriApp.Components.Layout
 @inject IEmailSender _emailSender;
+@inject IConfiguration _config;
 
 @rendermode InteractiveServer
 
@@ -57,7 +58,7 @@
 	{
 		var message = ($"<h2>Name: {formData.Name}</h2> <h2>Email: {formData.Email}</h2><p>{formData.Message}</p>");
 		var subject = $"[ZELMAS BAKERI] New message from {formData.Name} - {formData.Subject}";
-		await _emailSender.SendEmailAsync("tommy.p42666@gmail.com", subject, message);
+		await _emailSender.SendEmailAsync(_config?.GetValue<string>("EmailSettings:UserName") ?? "zelmasbakeri@gmail.com", subject, message);
 		formData.Name = "";
 		formData.Email = "";
 		formData.Subject = "";

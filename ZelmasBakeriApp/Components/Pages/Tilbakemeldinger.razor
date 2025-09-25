@@ -5,6 +5,8 @@
 @rendermode InteractiveServer
 
 @inject IDbAccess _db;
+@inject IEmailSender _emailSender;
+@inject IConfiguration _config;
 
 <PageTitle>Tilbakemeldinger</PageTitle>
 
@@ -92,12 +94,16 @@
 
     private async Task HandleValidSubmit()
     {
+        var name = (formData.Name is null || formData.Name.Length == 0) ? "Anonym tilbakemelding" : formData.Name; 
         var review = new Review(
             0, 
-            (formData.Name is null || formData.Name.Length == 0) ? "Anonym tilbakemelding" : formData.Name, 
+            name, 
             formData.Message ?? "Ingen tilbakemelding", 
             DateTime.Now);
         await _db.RegisterReview(review);
+        var message = ($"<h2>Name: {name}</h2> <p>Message: {formData.Message}</p>");
+        var subject = $"[ZELMAS BAKERI] New review on website from {name}";
+        await _emailSender.SendEmailAsync(_config?.GetValue<string>("EmailSettings:UserName") ?? "zelmasbakeri@gmail.com", subject, message);
         await Reset();
     }
 
