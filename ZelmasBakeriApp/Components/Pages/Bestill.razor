@@ -2,7 +2,7 @@
 
 @using Models;
 @using System.Text
-
+@using ZelmasBakeriApp.Components.Layout
 
 @inject IEmailSender _emailSender;
 @inject IDbAccess _db;
@@ -16,7 +16,6 @@
 {
     <p>Laster inn kakene...</p>
 } else { 
-
         <div id="wrapper">
             <div id="main">
                 <div class="inner">
@@ -48,41 +47,37 @@
                         </div>
                 </div>
             </div>
-                <footer id="footer">
-					<div class="inner">
-						<section>
-                            @if(editContext is not null)
-                            {
-                                <EditForm EditContext="@editContext" OnSubmit="HandleSubmit">
-                                    <DataAnnotationsValidator />
-   
-                                        <label for="name">Navn</label>
-                                        <InputText @bind-Value="formData.Name" id="name" class="form-control" placeholder="Ditt navn" />
-                                        <ValidationMessage For="@(() => formData.Name)" />
-                                        <br />
-                                        
-                                        <label for="email">E-post</label>
-                                        <InputText @bind-Value="formData.Email" @onblur="CheckEmailUnique" id=email class="form-control" placeholder="Din e-postadresse" />
-                                        <ValidationMessage For="@(() => formData.Email)" />
+            <Footer>
+                @if(editContext is not null)
+                {
+                    <EditForm EditContext="@editContext" OnSubmit="HandleSubmit">
+                        <DataAnnotationsValidator />
 
-                                        <br />
-                                        
-                                        <ValidationMessage For="@(() => formData.Basket)" />
+                            <label for="name">Navn</label>
+                            <InputText @bind-Value="formData.Name" id="name" class="form-control" placeholder="Ditt navn" />
+                            <ValidationMessage For="@(() => formData.Name)" />
+                            <br />
+                            
+                            <label for="email">E-post</label>
+                            <InputText @bind-Value="formData.Email" @onblur="CheckEmailUnique" id=email class="form-control" placeholder="Din e-postadresse" />
+                            <ValidationMessage For="@(() => formData.Email)" />
+
+                            <br />
+                            
+                            <ValidationMessage For="@(() => formData.Basket)" />
 
 
-                                        <label for="comments">Kommentarer (allergier, ønsker til leverigsdato, størrelse, pynt osv.)</label>
-                                        <InputTextArea @bind-Value="formData.Comments" id=comments class="form-control" placeholder="Dine kommentarer" />
-                                        <br>
-                                        
-                                        <button type="button" disabled="@(!isValid || isProcessingSubmit)" @onclick="()=>showModal=true">SEND BESTILLING</button>
+                            <label for="comments">Kommentarer (allergier, ønsker til leverigsdato, størrelse, pynt osv.)</label>
+                            <InputTextArea @bind-Value="formData.Comments" id=comments class="form-control" placeholder="Dine kommentarer" />
+                            <br>
+                            
+                            <button type="button" disabled="@(!isValid || isProcessingSubmit)" @onclick="()=>showModal=true">SEND BESTILLING</button>
 
-                                        <ValidationSummary />
-                                </EditForm>
-                            }
-                        </section>
-                        </div>
-                    </footer>
-                </div>
+                            <ValidationSummary />
+                    </EditForm>
+                }
+            </Footer>
+        </div>
          
 }
 

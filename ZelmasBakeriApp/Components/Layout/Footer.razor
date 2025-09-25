@@ -1,0 +1,18 @@
+@inject IEmailSender _emailSender
+
+<!-- Footer -->
+    <footer id="footer">
+        <div class="inner">
+            @if (ChildContent is not null)
+            {
+                @ChildContent
+            } 
+                <ul class="copyright">
+                    <li>&copy; Zelmas Bakeri @DateTime.Now.Year. All rights reserved</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                </ul>
+        </div>
+    </footer>
+
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+}
