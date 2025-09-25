@@ -63,7 +63,8 @@ public class SqliteConnector : IDbAccess
 
     public async Task<List<Review>> GetAllReviews()
     {
-        throw new NotImplementedException();
+        List<Review> output = new();
+        return output;
     }
 
     public async Task<Cake?> GetCakeById(long id)
@@ -122,6 +123,6 @@ public class SqliteConnector : IDbAccess
 
     public Task RegisterReview(Review review)
     {
-        throw new NotImplementedException();
+        return Task.CompletedTask;
     }
 }
