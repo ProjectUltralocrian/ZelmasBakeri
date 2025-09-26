@@ -21,7 +21,7 @@
     width: 100%;
 }
 
-@media (min-width: 1000px) {
+@media (min-width: 800px) {
     .cake-row {
         flex-direction: row;
     }
@@ -39,7 +39,7 @@
 	}
 }
 
-@media (max-width: 999.98px) {
+@media (max-width: 799.98px) {
     .cake-row {
         flex-direction: column;
     }
