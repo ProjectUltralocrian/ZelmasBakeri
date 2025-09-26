@@ -21,7 +21,7 @@
     width: 100%;
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1000px) {
     .cake-row {
         flex-direction: row;
     }
@@ -31,9 +31,15 @@
     .cake-row > .col-8 {
         width: 66.6667%;
     }
+	.indented {
+		margin-left: 8em;
+	}
+	.indented-btn {
+		margin-left: 10em;
+	}
 }
 
-@media (max-width: 1199.98px) {
+@media (max-width: 999.98px) {
     .cake-row {
         flex-direction: column;
     }
@@ -47,6 +53,8 @@
 	margin-bottom: 0.8em;
     line-height: 1.5;
 }
+
+
 
 
 html, body, div, span, applet, object,
@@ -2387,7 +2395,7 @@ input, select, textarea {
 		.image.fit {
 			display: block;
 			margin: 0 0 2em 0;
-			width: 100%;
+			width: 140%;
 		}
 
 			.image.fit img {
