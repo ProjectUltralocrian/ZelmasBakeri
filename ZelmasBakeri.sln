@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11304.174 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZelmasBakeriApp", "ZelmasBakeriApp\ZelmasBakeriApp.csproj", "{34A181A1-8F5A-4673-BE9B-A6445B8CE526}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZelmasBakeriBackend", "ZelmasBakeriBackend\ZelmasBakeriBackend.csproj", "{F73129D5-7627-46D6-BB4E-C056AE55A3B6}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "ZelmasBakeriDb", "ZelmasBakeriDb\ZelmasBakeriDb.sqlproj", "{29686B88-29B8-4FDD-AFC0-EF53705B72D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,12 @@ Global
 		{F73129D5-7627-46D6-BB4E-C056AE55A3B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F73129D5-7627-46D6-BB4E-C056AE55A3B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F73129D5-7627-46D6-BB4E-C056AE55A3B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29686B88-29B8-4FDD-AFC0-EF53705B72D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29686B88-29B8-4FDD-AFC0-EF53705B72D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29686B88-29B8-4FDD-AFC0-EF53705B72D7}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{29686B88-29B8-4FDD-AFC0-EF53705B72D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29686B88-29B8-4FDD-AFC0-EF53705B72D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29686B88-29B8-4FDD-AFC0-EF53705B72D7}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -75,10 +75,8 @@
     <Build Include="dbo\Stored Procedures\RegisterReview.sql" />
   </ItemGroup>
   <ItemGroup>
-    <PostDeploy Include="Script.PostDeployment1.sql" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="LocalDevZelmasBakeriDb.publish.publish.xml" />
     <None Include="AzureProdZelmasBakeriDb.publish.publish.xml" />
+    <None Include="ZelmasBakeriLocalDb.publish.publish.xml" />
   </ItemGroup>
 </Project>
