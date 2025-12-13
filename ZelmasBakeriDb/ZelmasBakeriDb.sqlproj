@@ -77,6 +77,8 @@
   <ItemGroup>
     <None Include="LocalDevZelmasBakeriDb.publish.publish.xml" />
     <None Include="AzureProdZelmasBakeriDb.publish.publish.xml" />
-    <None Include="ZelmasBakeriLocalDb.publish.publish.xml" />
+    <None Include="ZelmasBakeriLocalDb.publish.publish.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
