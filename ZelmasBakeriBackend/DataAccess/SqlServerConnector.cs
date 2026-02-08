@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ZelmasBakeriBackend.Models;
+﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using Dapper;
+using System.Data;
+using ZelmasBakeriBackend.Models;
 
 namespace ZelmasBakeriBackend.DataAccess;
 
 public class SqlServerConnector : IDbAccess
 {
-    private readonly IConfiguration _config;
+    private readonly IConfiguration? _config;
     private readonly string _connectionString;
 
     public SqlServerConnector(IConfiguration config)
@@ -75,7 +70,7 @@ public class SqlServerConnector : IDbAccess
             "GetCakeById",
             new { Id = id },
             commandType: CommandType.StoredProcedure);
-        
+
         return cake.FirstOrDefault();
     }
 
@@ -90,14 +85,14 @@ public class SqlServerConnector : IDbAccess
     public async Task RegisterCustomer(Customer customer)
     {
         using IDbConnection conn = new SqlConnection(_connectionString);
-        var id = await conn.ExecuteScalarAsync<long>("RegisterCustomer", new {@Name=customer.Name, @Email=customer.Email}, commandType: CommandType.StoredProcedure);
+        var id = await conn.ExecuteScalarAsync<long>("RegisterCustomer", new { @Name = customer.Name, @Email = customer.Email }, commandType: CommandType.StoredProcedure);
         customer.Id = id;
     }
 
     public async Task RegisterOrder(Order order)
     {
         using IDbConnection conn = new SqlConnection(_connectionString);
-        var id = await conn.ExecuteScalarAsync<long>("RegisterOrder", new {@CustomerId=order.CustomerId, @Date=order.Date, @Comments=order.Comments}, commandType: CommandType.StoredProcedure);
+        var id = await conn.ExecuteScalarAsync<long>("RegisterOrder", new { @CustomerId = order.CustomerId, @Date = order.Date, @Comments = order.Comments }, commandType: CommandType.StoredProcedure);
         order.Id = id;
 
         foreach (var cakeId in order.CakeIds)

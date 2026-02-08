@@ -1,7 +1,7 @@
-using System.Data;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
+using System.Data;
 using ZelmasBakeriBackend.Models;
 
 namespace ZelmasBakeriBackend.DataAccess;
@@ -44,16 +44,18 @@ public class SqliteConnector : IDbAccess
                 INNER JOIN kaker k ON k.id = ol.CakeID
                 GROUP BY o.OrderId, o.CustomerId, o.OrderDate, o.Comments
                 ORDER BY o.OrderDate;";
-        
+
         var orders = await conn.QueryAsync<Order>(sql);
 
-        foreach (var order in orders) {
+        foreach (var order in orders)
+        {
             List<long> ids = new();
             foreach (var i in order.CakeIdsString.Split(','))
             {
                 ids.Add(Int64.Parse(i));
             }
-            foreach (var cakeId in ids) {
+            foreach (var cakeId in ids)
+            {
                 var cake = await GetCakeById(cakeId);
                 if (cake is not null) order.Cakes.Add(cake);
             }
@@ -76,7 +78,7 @@ public class SqliteConnector : IDbAccess
         {
             return cakes.ToList().First();
         }
-        catch (Exception _)
+        catch (Exception)
         {
             return null;
         }
@@ -91,7 +93,7 @@ public class SqliteConnector : IDbAccess
         {
             return customers.ToList().First();
         }
-        catch (Exception _)
+        catch (Exception)
         {
             return null;
         }

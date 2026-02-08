@@ -291,10 +291,10 @@
         var output = await _db.GetAllCakes();
         if (output.Count == 0)
         output = new List<Cake>() {
-            new Cake(1, "Tiramisu",  300, "Deilig tiramisu", "Tiramisu.jpeg"),
-            new Cake(2, "Gulrot kake", 200,"Deilig gulrotkake", "GulrotKake.jpeg"),
-            new Cake(3, "Makroner", 50,"Makroner i forskjellige farger og smak. 6 stk boks.", "Makroner.jpeg"),
-            new Cake(4, "Vanlijekake", 300,"Perfekt for One Piece-fans", "OnePieceVaniljekake.jpeg")
+            new Cake(1, "Tiramisu",  300, "Tiramisu.jpeg", "Deilig tiramisu"),
+            new Cake(2, "Gulrot kake", 200, "GulrotKake.jpeg", "Deilig gulrotkake"),
+            new Cake(3, "Makroner", 50, "Makroner.jpeg", "Makroner i forskjellige farger og smak. 6 stk boks."),
+            new Cake(4, "Vanlijekake", 300, "OnePieceVaniljekake.jpeg", "Perfekt for One Piece-fans")
         };
         return output;
     }
@@ -314,10 +314,10 @@
         }
 
 
-        editContext.Validate();
+        editContext?.Validate();
         ValidateForm();
 
-        isValid = !editContext.GetValidationMessages().Any();
+        isValid = editContext is null ? false : !editContext.GetValidationMessages().Any();
         StateHasChanged();
     }
 

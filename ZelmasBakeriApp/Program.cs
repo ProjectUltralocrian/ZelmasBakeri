@@ -1,9 +1,6 @@
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 using ZelmasBakeriApp.Components;
-using ZelmasBakeriBackend.DataAccess;
-using ZelmasBakeriBackend.Services;
-using Microsoft.AspNetCore.Authorization;
+using ZelmasBakeriBackend;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,18 +10,8 @@ builder.Services.AddRazorComponents()
 
 
 builder.Services
-    .AddSingleton<IDbAccess, SqlServerConnector>()
-    .AddSingleton<IEmailSender>(_ =>
-    {
-        return new GmailSender
-        {
-            FromAddress = "zelmasbakeri@gmail.com",
-            UserName = "zelmasbakeri@gmail.com",
-            Password = builder.Configuration["EmailSettings:Password"] ?? "",
-        };
-    })
+    .AddBackendServices(builder.Configuration)
     .AddAuthentication();
-
 
 var app = builder.Build();
 
