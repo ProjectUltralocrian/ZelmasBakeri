@@ -16,7 +16,7 @@ builder.Services.AddRazorComponents()
 
 
 builder.Services
-    .AddBackendServices(builder.Configuration)
+    .AddBackendServices(builder.Configuration, builder.Environment.IsDevelopment())
     .AddAuthentication();
 
 var app = builder.Build();

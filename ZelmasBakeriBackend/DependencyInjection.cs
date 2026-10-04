@@ -7,11 +7,16 @@ namespace ZelmasBakeriBackend;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddBackendServices(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddBackendServices(this IServiceCollection services, IConfiguration config, bool isDevelopment)
     {
-        return services
-            .AddSingleton<IDbAccess, SqlServerConnector>()
-            .AddSingleton<IEmailSender>(_ =>
+        services.AddSingleton<IDbAccess, SqlServerConnector>();
+        if (isDevelopment)
+        {
+            services.AddSingleton<IEmailSender, DummyEmailSender>();
+        }
+        else
+        {
+            services.AddSingleton<IEmailSender>(_ =>
             {
                 return new GmailSender
                 {
@@ -20,5 +25,9 @@ public static class DependencyInjection
                     Password = config.GetValue<string>("EmailSettings:Password") ?? "",
                 };
             });
+        }
+
+
+        return services;
     }
 }
