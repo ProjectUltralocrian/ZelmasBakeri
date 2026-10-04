@@ -92,7 +92,7 @@ public class SqlServerConnector : IDbAccess
     public async Task RegisterOrder(Order order)
     {
         using IDbConnection conn = new SqlConnection(_connectionString);
-        var id = await conn.ExecuteScalarAsync<long>("RegisterOrder", new { @CustomerId = order.CustomerId, @Date = order.Date, @Comments = order.Comments }, commandType: CommandType.StoredProcedure);
+        var id = await conn.ExecuteScalarAsync<long>("RegisterOrder", new { order.CustomerId, order.Date, order.Comments }, commandType: CommandType.StoredProcedure);
         order.Id = id;
 
         foreach (var cakeId in order.CakeIds)
