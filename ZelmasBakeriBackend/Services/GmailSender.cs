@@ -3,7 +3,6 @@ using System.Net.Mail;
 
 namespace ZelmasBakeriBackend.Services;
 
-
 public class GmailSender : IEmailSender
 {
     public const string SmtpHost = "smtp.gmail.com";
@@ -11,15 +10,13 @@ public class GmailSender : IEmailSender
     public string FromAddress { get; init; } = "";
     public string UserName { get; init; } = "";
     public string Password { get; init; } = "";
+
     public async Task SendEmailAsync(string toAddress, string subject, string body)
     {
         try
         {
             // Create a new MailMessage object
-            MailMessage mail = new()
-            {
-                From = new MailAddress(FromAddress)
-            };
+            MailMessage mail = new() { From = new MailAddress(FromAddress) };
             mail.To.Add(toAddress);
             mail.Subject = subject;
             mail.Body = body;
@@ -32,7 +29,7 @@ public class GmailSender : IEmailSender
                 EnableSsl = true, // Enable SSL for secure connection
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false, // Important for providing specific credentials
-                Credentials = new NetworkCredential(UserName, Password)
+                Credentials = new NetworkCredential(UserName, Password),
             };
 
             var userState = $"Email to {toAddress} with subject '{subject}'";
@@ -46,5 +43,4 @@ public class GmailSender : IEmailSender
             Console.WriteLine($"Error sending email: {ex.Message}");
         }
     }
-
 }

@@ -17,5 +17,4 @@ public class Order
     public List<long> CakeIds => Cakes.Select(c => c.Id).ToList();
 
     public List<string> CakeNamesList => Cakes.Select(c => c.Name).ToList();
-
 }

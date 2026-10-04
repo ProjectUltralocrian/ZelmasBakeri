@@ -2,7 +2,9 @@
 
 public class Review(long id, string? name, string message, DateTime date)
 {
-    public Review() : this(0, null, String.Empty, DateTime.Now) { }
+    public Review()
+        : this(0, null, String.Empty, DateTime.Now) { }
+
     public long Id { get; set; } = id;
     public string Name { get; set; } = name;
     public string Message { get; set; } = message;

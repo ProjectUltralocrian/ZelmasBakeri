@@ -7,7 +7,11 @@ namespace ZelmasBakeriBackend;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddBackendServices(this IServiceCollection services, IConfiguration config, bool isDevelopment)
+    public static IServiceCollection AddBackendServices(
+        this IServiceCollection services,
+        IConfiguration config,
+        bool isDevelopment
+    )
     {
         services.AddSingleton<IDbAccess, SqlServerConnector>();
         if (isDevelopment)
@@ -26,7 +30,6 @@ public static class DependencyInjection
                 };
             });
         }
-
 
         return services;
     }

@@ -4,19 +4,20 @@ using ZelmasBakeriBackend;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSerilog((services, lc) => lc
-    .ReadFrom.Configuration(builder.Configuration)
-    .ReadFrom.Services(services)
-    .Enrich.FromLogContext()
-    .WriteTo.Console());
+builder.Services.AddSerilog(
+    (services, lc) =>
+        lc
+            .ReadFrom.Configuration(builder.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+);
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
-
-builder.Services
-    .AddBackendServices(builder.Configuration, builder.Environment.IsDevelopment())
+builder
+    .Services.AddBackendServices(builder.Configuration, builder.Environment.IsDevelopment())
     .AddAuthentication();
 
 var app = builder.Build();
@@ -31,14 +32,11 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-
-
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
 app.Run();

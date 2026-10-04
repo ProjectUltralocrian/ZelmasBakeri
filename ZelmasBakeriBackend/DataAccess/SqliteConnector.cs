@@ -1,7 +1,7 @@
+using System.Data;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
-using System.Data;
 using ZelmasBakeriBackend.Models;
 
 namespace ZelmasBakeriBackend.DataAccess;
@@ -14,7 +14,8 @@ public class SqliteConnector : IDbAccess
     public SqliteConnector(IConfiguration configuration)
     {
         _configuration = configuration;
-        _connectionString = _configuration.GetConnectionString("DevelopmentDb") ?? "Data Source=ZelmasBakeri.db";
+        _connectionString =
+            _configuration.GetConnectionString("DevelopmentDb") ?? "Data Source=ZelmasBakeri.db";
     }
 
     public async Task<List<Cake>> GetAllCakes()
@@ -27,10 +28,10 @@ public class SqliteConnector : IDbAccess
 
     public async Task<List<Order>> GetAllOrderDetails()
     {
-
         using IDbConnection conn = new SqliteConnection(_connectionString);
         conn.Open();
-        var sql = @"SELECT
+        var sql =
+            @"SELECT
                     o.OrderId,
                     o.CustomerId,
                     c.name as CustomerName,
@@ -57,7 +58,8 @@ public class SqliteConnector : IDbAccess
             foreach (var cakeId in ids)
             {
                 var cake = await GetCakeById(cakeId);
-                if (cake is not null) order.Cakes.Add(cake);
+                if (cake is not null)
+                    order.Cakes.Add(cake);
             }
         }
         return orders.ToList();
@@ -73,7 +75,10 @@ public class SqliteConnector : IDbAccess
     {
         using IDbConnection conn = new SqliteConnection(_connectionString);
         conn.Open();
-        var cakes = await conn.QueryAsync<Cake>("SELECT * FROM kaker WHERE id=@Id", new { @Id = id });
+        var cakes = await conn.QueryAsync<Cake>(
+            "SELECT * FROM kaker WHERE id=@Id",
+            new { @Id = id }
+        );
         try
         {
             return cakes.ToList().First();
@@ -88,7 +93,10 @@ public class SqliteConnector : IDbAccess
     {
         using IDbConnection conn = new SqliteConnection(_connectionString);
         conn.Open();
-        var customers = await conn.QueryAsync<Customer>("SELECT * FROM customers WHERE email=@Email", new { @Email = email });
+        var customers = await conn.QueryAsync<Customer>(
+            "SELECT * FROM customers WHERE email=@Email",
+            new { @Email = email }
+        );
         try
         {
             return customers.ToList().First();
@@ -103,8 +111,12 @@ public class SqliteConnector : IDbAccess
     {
         using IDbConnection conn = new SqliteConnection(_connectionString);
         conn.Open();
-        var sql = @"INSERT INTO customers (name, email) VALUES (@Name, @Email); SELECT last_insert_rowid();";
-        long customerID = await conn.ExecuteScalarAsync<long>(sql, new { Name = customer.Name, Email = customer.Email });
+        var sql =
+            @"INSERT INTO customers (name, email) VALUES (@Name, @Email); SELECT last_insert_rowid();";
+        long customerID = await conn.ExecuteScalarAsync<long>(
+            sql,
+            new { Name = customer.Name, Email = customer.Email }
+        );
         customer.Id = customerID;
     }
 
@@ -112,14 +124,32 @@ public class SqliteConnector : IDbAccess
     {
         using IDbConnection conn = new SqliteConnection(_connectionString);
         conn.Open();
-        var sql = @"INSERT INTO orders (CustomerID, OrderDate, Comments) VALUES (@CustomerID, @OrderDate, @Comments);
+        var sql =
+            @"INSERT INTO orders (CustomerID, OrderDate, Comments) VALUES (@CustomerID, @OrderDate, @Comments);
                 SELECT last_insert_rowid();";
-        long orderId = await conn.ExecuteScalarAsync<long>(sql, new { CustomerID = order.CustomerId, OrderDate = order.Date, Comments = order.Comments });
+        long orderId = await conn.ExecuteScalarAsync<long>(
+            sql,
+            new
+            {
+                CustomerID = order.CustomerId,
+                OrderDate = order.Date,
+                Comments = order.Comments,
+            }
+        );
         order.Id = orderId;
         foreach (var cakeId in order.CakeIds)
         {
-            sql = @"INSERT INTO orderlines (OrderID, CakeID, Quantity) VALUES (@Id, @CakeId, @Quantity);";
-            conn.Execute(sql, new { Id = orderId, CakeId = cakeId, Quantity = 1 });
+            sql =
+                @"INSERT INTO orderlines (OrderID, CakeID, Quantity) VALUES (@Id, @CakeId, @Quantity);";
+            conn.Execute(
+                sql,
+                new
+                {
+                    Id = orderId,
+                    CakeId = cakeId,
+                    Quantity = 1,
+                }
+            );
         }
     }
 

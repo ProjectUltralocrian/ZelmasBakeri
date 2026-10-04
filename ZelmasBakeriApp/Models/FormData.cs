@@ -6,11 +6,12 @@ public class NonEmptyBasketAttribute : ValidationAttribute
 {
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
-        if (value is null) return null;
+        if (value is null)
+            return null;
         if (((HashSet<(long, string)>)value).Count == 0)
             return new ValidationResult("Husk å velge minst en kake :)");
         return ValidationResult.Success;
-    } 
+    }
 }
 
 public class FormData
@@ -26,5 +27,4 @@ public class FormData
     public HashSet<(long, string)> Basket { get; set; } = new();
 
     public string? Comments { get; set; }
-
 }
