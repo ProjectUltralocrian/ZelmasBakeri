@@ -28,29 +28,7 @@ else
             <div class="inner">
                 <div class="box alt">
                     <div class="row gtr-uniform">
-                        <div class="container">
-                            @foreach (var c in cakes!)
-                            {
-                                <div class="row cake-row">
-                                    <div class="col-4">
-                                        <span class="image fit">
-                                            <img src="images/@c.Image" alt="" />
-                                        </span>
-                                    </div>
-                                            
-                                    <div class="col-6">
-                                        <h3 class="indented">@c.Name</h3>
-                                        <p class="bestill-para indented"><i>@c.Description</i></p>
-                                        <p class="bestill-para indented">@c.Price kr</p>
-                                        <button type="button" data-cake-id="@c.Id" class="bestill-btn indented-btn"
-                                                @onclick="() => BasketButtonClicked(c.Id, c.Name)">@((MarkupString)buttonTexts[c.Id])</button>
-                                        <div style="height: 2rem;"></div> <!-- Spacer -->
-                                        <p class="bestill-para indented">***</p>
-                                        <div style="height: 2rem;"></div> <!-- Spacer -->
-                                    </div>
-                                </div>
-                            }
-                        </div>
+                        <CakePicker Cakes="cakes" Basket="formData.Basket" OnToggle="ToggleCake" />
                     </div>
                 </div>
             </div>
@@ -134,10 +112,6 @@ else
         cakes = await GetAllCakes();
         editContext = new EditContext(formData);
         messageStore = new ValidationMessageStore(editContext);
-        foreach (var i in cakes)
-        {
-            buttonTexts.Add(i.Id, "LEGG TIL");
-        }
         AttachEditContextHandlers();
     }
 
@@ -175,13 +149,6 @@ else
         // Force re-validation and UI update
         editContext?.NotifyValidationStateChanged();
         ValidateForm();
-    }
-
-    Dictionary<Int64, string> buttonTexts = new();
-
-    private void ChangeButtonText(Int64 id)
-    {
-        buttonTexts[id] = buttonTexts[id] == "LEGG TIL" ? "FJERN" : "LEGG TIL";
     }
 
     private async Task HandleSubmit()
@@ -250,11 +217,6 @@ else
 
         AttachEditContextHandlers();
 
-        foreach (var (k, v) in buttonTexts)
-        {
-            buttonTexts[k] = "LEGG TIL";
-        }
-        
         isValid = false;
         isProcessingSubmit = false;
         showModal = false;
@@ -275,24 +237,20 @@ else
         return output;
     }
 
-    private void BasketButtonClicked(Int64 id, string name)
+    private void ToggleCake(Cake cake)
     {
-        if (!formData.Basket.Any(x => x.Item1 == id))
+        var existing = formData.Basket.FirstOrDefault(item => item.Item1 == cake.Id);
+
+        if (formData.Basket.Any(item => item.Item1 == cake.Id))
         {
-            formData.Basket.Add((id, name));
-            buttonTexts[id] = "FJERN";
+            formData.Basket.Remove(existing);
         }
         else
         {
-            formData.Basket.Remove((id, name)); // Remove by id
-            buttonTexts[id] = "LEGG TIL";
+            formData.Basket.Add((cake.Id, cake.Name));
         }
-
         editContext?.Validate();
         ValidateForm();
-
-        isValid = editContext is null ? false : !editContext.GetValidationMessages().Any();
-        StateHasChanged();
     }
 
     private void CloseConfirmation()
