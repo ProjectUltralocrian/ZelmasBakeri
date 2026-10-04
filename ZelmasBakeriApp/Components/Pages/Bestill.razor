@@ -16,92 +16,92 @@
 @if (cakes is null)
 {
     <p>Laster inn kakene...</p>
-} else { 
-        <div id="wrapper">
-            <div id="main">
-                <div class="inner">
-                    <h1>HVILKEN KAKE VIL DU HA?</h1>
-                </div>
+}
+else
+{
+    <div id="wrapper">
+        <div id="main">
+            <div class="inner">
+                <h1>HVILKEN KAKE VIL DU HA?</h1>
+            </div>
                 
-                <div class="inner">
-                        <div class="box alt">
-                            <div class="row gtr-uniform">
-                                <div class="container">
-                                    @foreach (var c in cakes!)
-                                    {
-                                        <div class="row cake-row">
-                                            <div class="col-4">
-                                                <span class="image fit">
-                                                    <img src="images/@c.Image" alt="" />
-                                                </span>
-                                            </div>
+            <div class="inner">
+                <div class="box alt">
+                    <div class="row gtr-uniform">
+                        <div class="container">
+                            @foreach (var c in cakes!)
+                            {
+                                <div class="row cake-row">
+                                    <div class="col-4">
+                                        <span class="image fit">
+                                            <img src="images/@c.Image" alt="" />
+                                        </span>
+                                    </div>
                                             
-                                            <div class="col-6">
-                                            
-                                                <h3 class="indented">@c.Name</h3>
-                                                <p class="bestill-para indented"><i>@c.Description</i></p>
-                                                <p class="bestill-para indented">@c.Price kr</p>
-                                                <button type="button" data-cake-id="@c.Id" class="bestill-btn indented-btn" @onclick="() => clicked(c.Id, c.Name)">@((MarkupString)buttonTexts[c.Id])</button>
-                                                <div style="height: 2rem;"></div> <!-- Spacer -->
-                                                <p class="bestill-para indented">***</p>
-                                                <div style="height: 2rem;"></div> <!-- Spacer -->
-                                            
-                                            </div>
-                                        </div>
-                                    }
+                                    <div class="col-6">
+                                        <h3 class="indented">@c.Name</h3>
+                                        <p class="bestill-para indented"><i>@c.Description</i></p>
+                                        <p class="bestill-para indented">@c.Price kr</p>
+                                        <button type="button" data-cake-id="@c.Id" class="bestill-btn indented-btn"
+                                                @onclick="() => BasketButtonClicked(c.Id, c.Name)">@((MarkupString)buttonTexts[c.Id])</button>
+                                        <div style="height: 2rem;"></div> <!-- Spacer -->
+                                        <p class="bestill-para indented">***</p>
+                                        <div style="height: 2rem;"></div> <!-- Spacer -->
+                                    </div>
                                 </div>
-
-                            </div>
+                            }
                         </div>
+                    </div>
                 </div>
             </div>
-            <Footer>
-                @if(editContext is not null)
-                {
-                    <EditForm EditContext="@editContext" OnSubmit="HandleSubmit">
-                        <DataAnnotationsValidator />
+        </div>
 
-                            <label for="name">Navn</label>
-                            <InputText @bind-Value="formData.Name" id="name" class="form-control" placeholder="Ditt navn" />
-                            <ValidationMessage For="@(() => formData.Name)" />
-                            <br />
+        <Footer>
+            @if (editContext is not null)
+            {
+                <EditForm EditContext="@editContext" OnSubmit="HandleSubmit">
+                    <DataAnnotationsValidator />
+
+                    <label for="name">Navn</label>
+                    <InputText @bind-Value="formData.Name" id="name" class="form-control" placeholder="Ditt navn" />
+                    <ValidationMessage For="@(() => formData.Name)" />
+                    <br />
                             
-                            <label for="email">E-post</label>
-                            <InputText @bind-Value="formData.Email" @onblur="CheckEmailUnique" id=email class="form-control" placeholder="Din e-postadresse" />
-                            <ValidationMessage For="@(() => formData.Email)" />
+                    <label for="email">E-post</label>
+                    <InputText @bind-Value="formData.Email" @onblur="CheckEmailUnique" id=email class="form-control"
+                               placeholder="Din e-postadresse" />
+                    <ValidationMessage For="@(() => formData.Email)" />
 
-                            <br />
+                    <br />
                             
-                            <ValidationMessage For="@(() => formData.Basket)" />
+                    <ValidationMessage For="@(() => formData.Basket)" />
 
 
-                            <label for="comments">Kommentarer (allergier, ønsker til leverigsdato, størrelse, pynt osv.)</label>
-                            <InputTextArea @bind-Value="formData.Comments" id=comments class="form-control" placeholder="Dine kommentarer" />
-                            <br>
+                    <label for="comments">Kommentarer (allergier, ønsker til leverigsdato, størrelse, pynt osv.)</label>
+                    <InputTextArea @bind-Value="formData.Comments" id=comments class="form-control"
+                                   placeholder="Dine kommentarer" />
+                    <br>
                             
-                            <button type="button" disabled="@(!isValid || isProcessingSubmit)" @onclick="()=>showModal=true">SEND BESTILLING</button>
+                    <button type="button" disabled="@(!isValid || isProcessingSubmit)" @onclick="() => showModal = true">SEND
+                        BESTILLING</button>
 
-                            <ValidationSummary />
+                        <ValidationSummary />
                     </EditForm>
                 }
             </Footer>
         </div>
-         
-}
+    }
 
-
-<Modal IsVisible="@showModal"
-        Title="Bekreft bestillingen"
-        OnClose=CloseConfirmation
-        OnSubmit="HandleSubmit">
+    <Modal IsVisible="@showModal" Title="Bekreft bestillingen" OnClose=CloseConfirmation OnSubmit="HandleSubmit">
         <h3>Bekreft bestillingen din:</h3>
         <p>Navn: @formData.Name</p>
         <p>E-post: @formData.Email</p>
         <p>Kommentarer: @(formData?.Comments ?? "")</p>
         <p>Kaker:</p>
-        @foreach(var (_, cake) in formData!.Basket) {
-            <p>  - @cake</p>
-        } 
+        @foreach (var (_, cake) in formData!.Basket)
+        {
+            <p> - @cake</p>
+        }
         @if (isProcessingSubmit)
         {
             <div class="mt-2">
@@ -110,48 +110,36 @@
                 </div>
             </div>
         }
-</Modal>
+    </Modal>
 
-                                            
+    <ModalBekreft IsVisible="@showConfirmation" Title="Ordrebekreftelse" OnClose="CloseConfirmation">
+        <h3>TUSEN TAKK FOR BESTILLINGEN</h3>
+        <p>Jeg har mottatt bestillingen din.</p>
+        <p>Du skal ha mottatt en automatisk e-post fra meg med detaljene. </p>
+        <p>(Sjekk ev. spam-filter dersom du ikke ser den.)</p>
+    </ModalBekreft>
 
-
-
-<ModalBekreft IsVisible="@showConfirmation"
-       Title="Ordrebekreftelse"
-       OnClose="CloseConfirmation">
-       <h3>TUSEN TAKK FOR BESTILLINGEN</h3>
-       <p>Jeg har mottatt bestillingen din.</p>
-       <p>Du skal ha mottatt en automatisk e-post fra meg med detaljene. </p>
-       <p>(Sjekk ev. spam-filter dersom du ikke ser den.)</p>
-</ModalBekreft>
-
-
-    @code {
+@code {
     private ValidationMessageStore? messageStore;
     EditContext? editContext;
-    private bool isValid = false;
     private FormData formData = new();
-
     private List<Cake>? cakes;
-
     private bool showModal = false;
     private bool showConfirmation = false;
-
     private bool isProcessingSubmit = false;
+    private bool isValid = false;
 
     protected override async Task OnInitializedAsync()
     {
         cakes = await GetAllCakes();
         editContext = new EditContext(formData);
         messageStore = new ValidationMessageStore(editContext);
-        foreach (var i in cakes) {
+        foreach (var i in cakes)
+        {
             buttonTexts.Add(i.Id, "LEGG TIL");
         }
         AttachEditContextHandlers();
     }
-
-
-
 
     private void AttachEditContextHandlers()
     {
@@ -163,7 +151,6 @@
 
         }
     }
-
 
     private void ValidateForm()
     {
@@ -215,19 +202,22 @@
         var customer = await _db.GetCustomerByEmail(formData.Email!);
         if (customer is null)
         {
-            customer = new Customer{Email = formData.Email!, Name = formData.Name!};
+            customer = new Customer { Email = formData.Email!, Name = formData.Name! };
             await _db.RegisterCustomer(customer);
         }
         HashSet<Cake> cakes = new();
-        foreach (var (id, _) in formData.Basket) {
+        foreach (var (id, _) in formData.Basket)
+        {
             var cake = await _db.GetCakeById(id);
-            if (cake is not null) {
+            if (cake is not null)
+            {
                 cakes.Add(cake);
             }
         }
-        var order = new Order {   
-            CustomerId = customer!.Id, 
-            CustomerName = customer.Name, 
+        var order = new Order
+        {
+            CustomerId = customer!.Id,
+            CustomerName = customer.Name,
             CustomerEmail = customer.Email,
             Comments = formData.Comments,
             Date = DateTime.Now,
@@ -242,7 +232,7 @@
             _logger.LogInformation(
                 "Order ID: {Id}, Customer ID: {CustomerId}, Customer name: {CustomerName}, Date: {Date}, Comments: {Comments} Cakes:",
                 o.Id, o.CustomerId, o.CustomerName, o.Date, o.Comments);
-            foreach(var c in o.Cakes.Select(c=>c.Name))
+            foreach (var c in o.Cakes.Select(c => c.Name))
             {
                 _logger.LogInformation("  - {Cake}", c);
             }
@@ -255,8 +245,8 @@
         formData.Email = "";
         formData.Name = "";
         
-        editContext = new EditContext(formData); 
-        messageStore = new ValidationMessageStore(editContext); 
+        editContext = new EditContext(formData);
+        messageStore = new ValidationMessageStore(editContext);
 
         AttachEditContextHandlers();
 
@@ -265,7 +255,7 @@
             buttonTexts[k] = "LEGG TIL";
         }
         
-        isValid = false;    
+        isValid = false;
         isProcessingSubmit = false;
         showModal = false;
         showConfirmation = true;
@@ -276,8 +266,8 @@
     {
         var output = await _db.GetAllCakes();
         if (output.Count == 0)
-        output = new List<Cake>() {
-            new Cake(1, "Tiramisu",  300, "Tiramisu.jpeg", "Deilig tiramisu"),
+            output = new List<Cake>() {
+            new Cake(1, "Tiramisu", 300, "Tiramisu.jpeg", "Deilig tiramisu"),
             new Cake(2, "Gulrot kake", 200, "GulrotKake.jpeg", "Deilig gulrotkake"),
             new Cake(3, "Makroner", 50, "Makroner.jpeg", "Makroner i forskjellige farger og smak. 6 stk boks."),
             new Cake(4, "Vanlijekake", 300, "OnePieceVaniljekake.jpeg", "Perfekt for One Piece-fans")
@@ -285,9 +275,8 @@
         return output;
     }
 
-    private void clicked(Int64 id, string name)
+    private void BasketButtonClicked(Int64 id, string name)
     {
-      
         if (!formData.Basket.Any(x => x.Item1 == id))
         {
             formData.Basket.Add((id, name));
@@ -298,7 +287,6 @@
             formData.Basket.Remove((id, name)); // Remove by id
             buttonTexts[id] = "LEGG TIL";
         }
-
 
         editContext?.Validate();
         ValidateForm();
@@ -324,7 +312,8 @@
         sb.AppendLine(order.Comments is not null ? $"Kommentar: {order.Comments!}" : "");
         sb.AppendLine("Du har bestilt følgende kaker:");
         
-        foreach (var cakeName in order.CakeNamesList) {
+        foreach (var cakeName in order.CakeNamesList)
+        {
             sb.AppendLine($"  - {cakeName}");
         }
 
@@ -335,9 +324,10 @@
     {
         var lines = GetConfirmationMessage(order)
                             .Split('\n')
-                            .Select(l=>$"<p>{l}</p>");
+                            .Select(l => $"<p>{l}</p>");
         var message = String.Join(" ", lines);
         await _emailSender.SendEmailAsync(formData.Email!, $"[ZELMAS BAKERI] Bestilling #{order.Id} mottatt", message!);
-        await _emailSender.SendEmailAsync(_config?.GetValue<string>("EmailSettings:UserName") ?? "zelmasbakeri@gmail.com", $"[ZELMAS BAKERI] Bestilling #{order.Id} mottatt", message!);
+        await _emailSender.SendEmailAsync(_config?.GetValue<string>("EmailSettings:UserName") ?? "zelmasbakeri@gmail.com",
+$"[ZELMAS BAKERI] Bestilling #{order.Id} mottatt", message!);
     }
-} 
+}
