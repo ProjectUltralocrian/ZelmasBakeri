@@ -1,7 +1,7 @@
-using System.Data;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
+using System.Data;
 using ZelmasBakeriBackend.Models;
 
 namespace ZelmasBakeriBackend.DataAccess;
@@ -155,6 +155,20 @@ public class SqliteConnector : IDbAccess
 
     public Task RegisterReview(Review review)
     {
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task SeedCakes()
+    {
+        // TODO: Implement seeding if necessary
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task SeedDbWithDummyData()
+    {
+        // TODO implement seeding with dummy data if needed
         return Task.CompletedTask;
     }
 }

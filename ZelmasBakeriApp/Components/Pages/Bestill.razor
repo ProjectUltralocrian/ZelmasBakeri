@@ -224,18 +224,7 @@ else
         StateHasChanged();
     }
 
-    private async Task<List<Cake>> GetAllCakes()
-    {
-        var output = await _db.GetAllCakes();
-        if (output.Count == 0)
-            output = new List<Cake>() {
-            new Cake(1, "Tiramisu", 300, "Tiramisu.jpeg", "Deilig tiramisu"),
-            new Cake(2, "Gulrot kake", 200, "GulrotKake.jpeg", "Deilig gulrotkake"),
-            new Cake(3, "Makroner", 50, "Makroner.jpeg", "Makroner i forskjellige farger og smak. 6 stk boks."),
-            new Cake(4, "Vanlijekake", 300, "OnePieceVaniljekake.jpeg", "Perfekt for One Piece-fans")
-        };
-        return output;
-    }
+    private async Task<List<Cake>> GetAllCakes() => await _db.GetAllCakes();
 
     private void ToggleCake(Cake cake)
     {

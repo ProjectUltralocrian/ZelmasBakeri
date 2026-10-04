@@ -1,6 +1,7 @@
 using Serilog;
 using ZelmasBakeriApp.Components;
 using ZelmasBakeriBackend;
+using ZelmasBakeriBackend.DataAccess;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,5 +39,8 @@ app.UseStaticFiles();
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+
+app.Services.GetService<IDbAccess>().SeedCakes();
+app.Services.GetService<IDbAccess>().SeedDbWithDummyData();
 
 app.Run();
