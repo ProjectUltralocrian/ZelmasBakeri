@@ -8,14 +8,13 @@
 <PageTitle>Forside</PageTitle>
 
         <div id="wrapper">
-
 			<!-- Main -->
 			<div id="main">
 				<div class="inner">
 					<h1>ZELMAS PETITE PÂTISSERIE</h1>
 					<h3>Bakedugnad til inntekt for treningsleir</h3>
 					<span class="image main"><img src="images/Forside.jpeg" alt="" /></span>
-					<p>👩🏻‍🍳 Hei! Jeg heter Zelma og er 12 år. Jeg elsker å bake kaker, min drøm er å bli konditor.</p>
+					<p>👩🏻‍🍳 Hei! Jeg heter Zelma og er @GetZelmaAge() år. Jeg elsker å bake kaker, min drøm er å bli konditor.</p>
 					<p>🤸‍♀️ Jeg driver med turning på Njård. Jeg trener masse – faktisk 15 timer i uka – og er ofte med på konkurranser.</p>
 					<p>💰 For å samle inn penger til treningsleir, arrangerer klubben flere dugnader året rundt. Jeg har derfor begynt å selge hjemmelagde kaker. </p> 
 					<p>🍰 Så hvis du vil ha en skikkelig god kake til bursdag, fest eller bare til kos, og samtidig hjelpe turnlaget mitt, er det bare å bestille! </p>
@@ -26,11 +25,12 @@
 						<li>Tiramisu</li>
 						<li>Gulrotkake</li>
 						<li>Jordbærkake med mørk sjokoladekrem</li>
+						<li>Lemon curd kake</li>
 					</ul>
-					<p>🛒 Du kan bruke menyen øverst til høyre for å bestille. Når du bestiller, får du en e-post fra meg og så kan vi diskutere ønskene dine, samt avtale leveringsdato og sted.
+					<p>🛒 Du kan bruke menyen øverst til høyre <NavLink href="/bestill">for å bestille</NavLink>. Når du bestiller, får du en e-post fra meg og så kan vi diskutere ønskene dine, samt avtale leveringsdato og sted.
 					Jeg baker vanligvis i helgene, men enda oftere når det er skolefri. :)</p>
-					<p>✍️ Likte du kakene mine, blir jeg veldig glad hvis du legger inn en tilbakemelding eller vurdering. </p>
-					<p><strong>Sjekk ut kakene mine – håper du finner noe du liker!</strong></p>
+					<p>✍️ Likte du kakene mine, blir jeg veldig glad hvis du <NavLink href="/tilbakemeldinger">legger inn en tilbakemelding eller vurdering</NavLink>.</p>
+					<p><strong>Sjekk ut kakene mine – jeg håper du finner noe du liker!</strong></p>
 				</div>
 			</div>
 
@@ -57,10 +57,7 @@
                     <button type="submit">Send</button>
                 </EditForm>
 			</Footer>
-
-			
 		</div>
-
 
 @code {
 	private FormModel formData = new();
@@ -77,11 +74,21 @@
 		StateHasChanged();
 	}
 
-    public class FormModel
-    {
-        public string? Name { get; set; }
-        public string? Email { get; set; }
+	public class FormModel
+	{
+		public string? Name { get; set; }
+		public string? Email { get; set; }
 		public string? Subject { get; set; }
 		public string? Message { get; set; }
-    }
+	}
+
+	private static int GetZelmaAge()
+	{
+		var today = DateTime.Now;
+		var zelmaBd = new DateTime(2013, 5, 15);
+		int output = today.Year - zelmaBd.Year;
+		return (today.Month < zelmaBd.Month || (today.Month == zelmaBd.Month && today.Day < zelmaBd.Day))
+			? output - 1
+			: output;
+	}
 }
