@@ -8,7 +8,7 @@
 @inject IDbAccess _db;
 @inject NavigationManager _navigation;
 @inject IConfiguration _config;
-
+@inject ILogger<Bestill> _logger;
 
 @rendermode InteractiveServer
 
@@ -126,7 +126,7 @@
 </ModalBekreft>
 
 
-@code {
+    @code {
     private ValidationMessageStore? messageStore;
     EditContext? editContext;
     private bool isValid = false;
@@ -200,34 +200,18 @@
     private async Task HandleSubmit()
     {
         isProcessingSubmit = true;
-
-        //Dummy logic to simulate loading data.
-        await Task.Delay(2000);
-
         editContext!.Validate();
-
         await CheckEmailUnique(null);
-
         isValid = !editContext.GetValidationMessages().Any();
 
         if (!isValid)
         {
-            Console.WriteLine("In here");
             isProcessingSubmit = false;
             showModal = false;
             StateHasChanged();
             return; // Do not proceed
         }
 
-
-        //messageStore?.Clear(new FieldIdentifier(formData, nameof(formData.Email)));
-
-        await Task.Run(()=>Console.WriteLine("Valid submission"));
-        Console.WriteLine("Basket: ");
-        foreach(var i in formData.Basket) {
-            Console.WriteLine(i);
-        }
-        
         var customer = await _db.GetCustomerByEmail(formData.Email!);
         if (customer is null)
         {
@@ -250,19 +234,21 @@
             Cakes = cakes
         };
         await _db.RegisterOrder(order);
-        
-        var allOrders = await _db.GetAllOrderDetails();
 
+        var allOrders = await _db.GetAllOrderDetails();
 
         foreach (var o in allOrders)
         {
-            Console.WriteLine($"Order ID: {o.Id}, Customer ID: {o.CustomerId}, Customer name: {o.CustomerName}, Date: {o.Date}, Comments: {o.Comments} Cakes:");
+            _logger.LogInformation(
+                "Order ID: {Id}, Customer ID: {CustomerId}, Customer name: {CustomerName}, Date: {Date}, Comments: {Comments} Cakes:",
+                o.Id, o.CustomerId, o.CustomerName, o.Date, o.Comments);
             foreach(var c in o.Cakes.Select(c=>c.Name))
             {
-                Console.WriteLine($"  - {c}");
+                _logger.LogInformation("  - {Cake}", c);
             }
         }
         await SendConfirmationEmail(order);
+        _logger.LogInformation("Order submitted by {CustomerName}.", order.CustomerName);
 
         formData.Basket.Clear();
         formData.Comments = "";
@@ -325,7 +311,6 @@
     {
         showConfirmation = false;
         showModal = false;
-        Console.WriteLine("Closing confirmation");
     }
 
     private string GetConfirmationMessage(Order order)

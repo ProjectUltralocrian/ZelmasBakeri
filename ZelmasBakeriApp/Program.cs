@@ -1,8 +1,14 @@
-using Microsoft.AspNetCore.Identity;
+using Serilog;
 using ZelmasBakeriApp.Components;
 using ZelmasBakeriBackend;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSerilog((services, lc) => lc
+    .ReadFrom.Configuration(builder.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext()
+    .WriteTo.Console());
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -14,6 +20,8 @@ builder.Services
     .AddAuthentication();
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
